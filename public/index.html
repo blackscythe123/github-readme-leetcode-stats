@@ -3074,10 +3074,12 @@ function buildColorRows() {
     ci.addEventListener("input", function () {
       const key = ci.getAttribute("data-color-input");
       const cb = els.colorRows.querySelector('input[data-color-key="' + key + '"]');
-      if (cb && cb.checked) {
-        state.colorOverrides[key] = ci.value;
-        render();
-      }
+      // Picking a color IS enabling the override — auto-tick the checkbox so the
+      // panel works the way people intuitively use it (checkbox still available
+      // to toggle the override off without losing the picked color).
+      if (cb && !cb.checked) cb.checked = true;
+      state.colorOverrides[key] = ci.value;
+      render();
     });
   });
 }
