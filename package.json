@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Composable LeetCode dashboard card for your GitHub README — solved stats, streaks, skills, heatmap, 160+ themes",
   "private": true,
-  "type": "module",
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

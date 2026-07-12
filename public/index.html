@@ -100,6 +100,27 @@
 
   .field-note { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
 
+  details.adv-colors { margin: 18px 0 0; }
+  details.adv-colors > summary {
+    cursor: pointer; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-dim); font-weight: 700; list-style: none; user-select: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  details.adv-colors > summary::-webkit-details-marker { display: none; }
+  details.adv-colors > summary::before { content: "\25B8"; font-size: 9px; transition: transform .15s; display: inline-block; }
+  details.adv-colors[open] > summary::before { transform: rotate(90deg); }
+  .color-rows { display: flex; flex-direction: column; gap: 7px; margin: 10px 0 8px; }
+  .color-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .color-row input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; flex: none; }
+  .color-row input[type="color"] {
+    width: 26px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 5px;
+    background: none; cursor: pointer; flex: none;
+  }
+  .color-row span { flex: 1; font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+  .reset-link {
+    display: inline-block; margin-top: 2px; font-size: 11px; cursor: pointer; text-decoration: underline;
+  }
+
   .main-col { min-width: 0; }
   .preview-card {
     background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
@@ -195,6 +216,27 @@
         <span class="val" id="borderRadiusVal">4.5</span>
       </div>
       <div class="field-note">0 = square corners, 60 = maximum rounding.</div>
+
+      <h2>Top skills</h2>
+      <div class="slider-row">
+        <input type="range" id="topSkills" min="1" max="12" step="1" value="12">
+        <span class="val" id="topSkillsVal">12</span>
+      </div>
+      <div class="field-note">Max skill chips shown. Below 12, adds top_skills to the embed URL.</div>
+
+      <h2>Top languages</h2>
+      <div class="slider-row">
+        <input type="range" id="topLangs" min="1" max="12" step="1" value="12">
+        <span class="val" id="topLangsVal">12</span>
+      </div>
+      <div class="field-note">Max language chips shown. Below 12, adds top_langs to the embed URL.</div>
+
+      <details class="adv-colors" id="advColorsDetails">
+        <summary>Custom colors (advanced)</summary>
+        <div class="color-rows" id="colorRows"></div>
+        <a href="#" class="reset-link" id="resetColorsBtn">Reset overrides</a>
+        <div class="field-note">Enable a key to override it live and append it (hex, no #) to the embed URL.</div>
+      </details>
     </aside>
 
     <div class="main-col">
@@ -249,6 +291,12 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const ALL_SECTION_ORDER = ["profile", "solved", "streak", "skills", "languages", "heatmap"];
 const DEFAULT_SECTIONS = ["profile", "solved", "streak", "skills", "heatmap"];
 const SECTION_LABELS = { profile: "Profile", solved: "Solved", streak: "Streak", skills: "Skills", languages: "Languages", heatmap: "Heatmap" };
+
+// Same order/keys as src/types.ts ThemeColors + src/params.ts COLOR_KEYS.
+const COLOR_KEYS = [
+  "background", "border", "stroke", "ring", "fire", "currStreakNum", "sideNums",
+  "currStreakLabel", "sideLabels", "dates", "excludeDaysLabel",
+];
 
 const ANIM_CSS =
   ".lc-fade{animation:lcFade .6s ease both}" +
@@ -405,9 +453,75 @@ const hline = function (t, y, x1, x2) {
 
 /* ============================== sections ============================== */
 
-const LOGO_DATA_URI = "data:image/png;base64,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";
-function logoBadge(x, y) {
-  return '<image href="' + LOGO_DATA_URI + '" x="' + x + '" y="' + y + '" width="26" height="26"/>';
+// Official LeetCode logo, both variants (see src/logo.ts — data URIs copied verbatim).
+// ON_LIGHT: original asset (black bracket) — for light/mid backgrounds.
+// ON_DARK: white-bracket variant — for dark backgrounds where black would vanish.
+const LOGO_ON_LIGHT = "data:image/png;base64,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";
+const LOGO_ON_DARK = "data:image/png;base64,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";
+
+const GRADIENT_STOP_RE = /^[0-9a-fA-F]{3,8}$/;
+
+/** Perceived luminance (0..1) of a 6-hex-digit "RRGGBB" string (no "#"). */
+function hex6Luminance(rgb) {
+  const r = parseInt(rgb.slice(0, 2), 16);
+  const g = parseInt(rgb.slice(2, 4), 16);
+  const b = parseInt(rgb.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
+/** Expand a 3/4-digit hex shorthand ("abc"/"abcd") to 6/8 digits by doubling each char. */
+function expandShorthandHex(hex) {
+  return hex.length === 3 || hex.length === 4
+    ? hex.split("").map(function (c) { return c + c; }).join("")
+    : hex;
+}
+
+// Ported verbatim from src/sections/profile.ts::colorLuminance so the demo picks the same
+// logo variant the server would for the same theme + overrides.
+function colorLuminance(value) {
+  const raw = typeof value === "string" ? value.trim() : "";
+  const parts = raw.split(",");
+
+  if (parts.length >= 3) {
+    const stopLums = [];
+    for (let i = 1; i < parts.length; i++) {
+      const stop = parts[i].trim();
+      if (!GRADIENT_STOP_RE.test(stop)) continue;
+      const hex = expandShorthandHex(stop);
+      const rgb = hex.length === 8 ? hex.slice(0, 6) : hex;
+      if (rgb.length === 6) stopLums.push(hex6Luminance(rgb));
+    }
+    if (stopLums.length === 0) return null;
+    let sum = 0;
+    for (let i = 0; i < stopLums.length; i++) sum += stopLums[i];
+    return sum / stopLums.length;
+  }
+
+  if (raw.charAt(0) !== "#") return null;
+
+  let hex = expandShorthandHex(raw.slice(1));
+  if (hex.length === 8) {
+    const alphaByte = parseInt(hex.slice(6, 8), 16);
+    const alpha = Number.isFinite(alphaByte) ? alphaByte / 255 : 1;
+    if (alpha < 0.25) return null; // effectively transparent
+    hex = hex.slice(0, 6);
+  }
+  if (hex.length === 6 && /^[0-9a-fA-F]{6}$/.test(hex)) return hex6Luminance(hex);
+  return null;
+}
+
+// Ported verbatim from src/sections/profile.ts::pickLogo (same fallback-to-inverse-sideNums rule).
+function pickLogo(t) {
+  let bgLum = colorLuminance(t.background);
+  if (bgLum === null) {
+    const sideLum = colorLuminance(t.sideNums);
+    bgLum = 1 - (sideLum === null ? 0.5 : sideLum);
+  }
+  return bgLum < 0.5 ? LOGO_ON_DARK : LOGO_ON_LIGHT;
+}
+
+function logoBadge(t, x, y) {
+  return '<image href="' + pickLogo(t) + '" x="' + x + '" y="' + y + '" width="26" height="26"/>';
 }
 
 function avatarMarkup(t, data, cx, cy) {
@@ -425,7 +539,7 @@ function avatarMarkup(t, data, cx, cy) {
 
 function secProfile(t, data, x, y, opts) {
   const rank = Number.isFinite(data.rank) ? "Rank " + Number(data.rank).toLocaleString("en-US") : "Rank —";
-  return "\n    " + logoBadge(x, y) +
+  return "\n    " + logoBadge(t, x, y) +
     "\n    " + txt(x + 34, y + 14, 16, 700, t.sideNums, data.username || "", "start") +
     "\n    " + txt(x + 34, y + 30, 11, 400, t.dates, rank, "start") +
     "\n    " + avatarMarkup(t, data, x + 272, y + 13);
@@ -492,13 +606,17 @@ function secStreak(t, data, x, y, w, opts) {
     "\n    " + txt(cols[2], cy + 32, 11, 400, t.sideLabels, "Highest Streak");
 }
 
-function secChips(t, list, title, x, y, w, opts) {
+function secChips(t, list, title, x, y, w, opts, cap) {
+  const items = Array.isArray(list) ? list : [];
+  // Mirrors src/sections/skills.ts::renderChips: slice to `cap` (top_skills/top_langs) for
+  // display, but "+N more" is computed against the true pre-cap total, same as the server.
+  const capValue = Number.isFinite(cap) ? cap : 12;
+  const capped = items.slice(0, capValue);
   let html = txt(x, y + 10, 12, 700, t.sideLabels, title, "start");
   let cx = x, cy = y + 22, shown = 0;
-  const items = Array.isArray(list) ? list : [];
-  for (let i = 0; i < items.length; i++) {
-    const name = String(items[i].name);
-    const label = name + " ×" + fmtNum(items[i].count, opts.short);
+  for (let i = 0; i < capped.length; i++) {
+    const name = String(capped[i].name);
+    const label = name + " ×" + fmtNum(capped[i].count, opts.short);
     const cw = label.length * 6.2 + 18;
     if (cx + cw > x + w) { cx = x; cy += 26; if (cy > y + 52) break; }
     html += '\n    <rect x="' + cx + '" y="' + cy + '" width="' + cw.toFixed(1) + '" height="20" rx="10" ' +
@@ -622,8 +740,8 @@ function composeBody(t, layout, data, sections, opts) {
       if (layout.hasLeft && layout.hasRight) body += "\n  " + vline(t, 330, b.y, b.y + b.h);
     } else if (b.type === "skills") {
       let sy = b.y;
-      if (sections.has("skills")) { body += "\n  " + secChips(t, data.skills, "Skills", PAD, sy, W - 2 * PAD, opts); sy += 78; }
-      if (sections.has("languages")) { body += "\n  " + secChips(t, data.languages, "Languages", PAD, sy, W - 2 * PAD, opts); }
+      if (sections.has("skills")) { body += "\n  " + secChips(t, data.skills, "Skills", PAD, sy, W - 2 * PAD, opts, opts.topSkills); sy += 78; }
+      if (sections.has("languages")) { body += "\n  " + secChips(t, data.languages, "Languages", PAD, sy, W - 2 * PAD, opts, opts.topLangs); }
     } else if (b.type === "heat") {
       body += "\n  " + secHeatmap(t, data, PAD, b.y, W - 2 * PAD, opts);
     }
@@ -638,16 +756,19 @@ function emptyStateSvg() {
     "</svg>";
 }
 
-function composeCard(t, layout, data, sections, params) {
+// `t` must already be the fully-resolved theme (base + enabled color overrides + transparent/
+// hideBorder baked in via resolveThemeJs — see render()), matching how card.ts's renderCard
+// receives an already-resolved ThemeColors from resolveTheme() rather than raw flags.
+function composeCard(t, layout, data, sections, opts) {
   const uid = nextUid();
   const w = layout.width, h = layout.height;
-  const radius = clamp(params.borderRadius, 0, 60);
-  const border = params.hideBorder ? "#0000" : t.border;
-  const bg = params.transparent ? "#0000" : t.background;
+  const radius = clamp(opts.borderRadius, 0, 60);
+  const border = t.border;
+  const bg = t.background;
 
   let bgFill, gradientDef = "";
   const parts = String(bg).split(",");
-  if (!params.transparent && parts.length >= 3) {
+  if (parts.length >= 3) {
     let stops = "";
     for (let i = 1; i < parts.length; i++) {
       const off = (((i - 1) * 100) / (parts.length - 2)).toFixed(1);
@@ -659,8 +780,8 @@ function composeCard(t, layout, data, sections, params) {
     bgFill = fillAttrs(bg, "fill");
   }
 
-  const style = params.animate ? "<style>" + ANIM_CSS + "</style>" : "";
-  const body = composeBody(t, layout, data, sections, params);
+  const style = opts.animate ? "<style>" + ANIM_CSS + "</style>" : "";
+  const body = composeBody(t, layout, data, sections, opts);
 
   return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + " " + h + '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate">' +
     "<defs>" + style + gradientDef + '<clipPath id="c_' + uid + '"><rect width="' + w + '" height="' + h + '" rx="' + radius + '"/></clipPath></defs>' +

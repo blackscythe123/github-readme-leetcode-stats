@@ -9,14 +9,13 @@
 // count) throws immediately instead of silently producing a broken themes.json.
 
 import { writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import type { ThemeColors } from "../src/types";
 
 const THEMES_PHP_URL =
   "https://raw.githubusercontent.com/DenverCoder1/github-readme-streak-stats/main/src/themes.php";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// CJS package (no "type": "module") — __dirname is the Node built-in here.
 const OUTPUT_PATH = resolve(__dirname, "../src/themes.json");
 
 /** The 11 theme color keys, in the canonical order used everywhere in this repo. */

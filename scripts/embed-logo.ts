@@ -3,7 +3,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const root = resolve(import.meta.dirname, "..");
+// CJS package (no "type": "module") — __dirname is the Node built-in here.
+const root = resolve(__dirname, "..");
 const uri = (file: string) =>
   `data:image/png;base64,${readFileSync(resolve(root, "assets", file)).toString("base64")}`;
 

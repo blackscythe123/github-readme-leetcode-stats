@@ -6,12 +6,11 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 import cardHandler from "../api/card";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// CJS package (no "type": "module") — __dirname is the Node built-in here.
 const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
 const PORT = 3178;

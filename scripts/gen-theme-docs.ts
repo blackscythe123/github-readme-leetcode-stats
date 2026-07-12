@@ -7,10 +7,9 @@
 // whenever src/themes.json changes (e.g. after `npm run port-themes`).
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// CJS package (no "type": "module") — __dirname is the Node built-in here.
 const THEMES_PATH = resolve(__dirname, "../src/themes.json");
 const DOCS_DIR = resolve(__dirname, "../docs");
 const OUT_PATH = resolve(DOCS_DIR, "themes.md");
