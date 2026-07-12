@@ -7,6 +7,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "port-themes": "tsx scripts/port-themes.ts",
+    "gen-theme-docs": "tsx scripts/gen-theme-docs.ts",
     "dev": "tsx scripts/dev-server.ts",
     "build:api": "esbuild src/handler.ts --bundle --platform=node --target=node22 --format=cjs --outfile=api/card.js",
     "vercel-build": "npm run build:api"

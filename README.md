@@ -102,7 +102,7 @@ https://your-app.vercel.app/api/card?type=json
 
 | `default` | `dark` | `github-dark` | `tokyonight` |
 |---|---|---|---|
-| ![default](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=default) | ![dark](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=dark) | ![github-dark](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=github-dark) | ![tokyonight](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=tokyonight) |
+| ![default](docs/previews/default.svg) | ![dark](docs/previews/dark.svg) | ![github-dark](docs/previews/github-dark.svg) | ![tokyonight](docs/previews/tokyonight.svg) |
 
 ### 🎨 [See all 166 themes →](docs/themes.md)
 
