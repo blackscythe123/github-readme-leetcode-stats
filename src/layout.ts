@@ -63,24 +63,10 @@ function hline(y: number, x1: number, x2: number): DividerLine {
 // given in the build spec) for every arrangement that was actually designed/demonstrated.
 // ---------------------------------------------------------------------------
 
-function fullDashboard(middle: SectionName): CardLayout {
-  return {
-    width: 840,
-    height: 440,
-    placements: [
-      { section: "profile", x: 24, y: 22, w: 306 },
-      { section: "solved", x: 24, y: 78, w: 306 },
-      { section: "streak", x: 340, y: 30, w: 470 },
-      { section: middle, x: 350, y: 162, w: 460 },
-      { section: "heatmap", x: 24, y: 256, w: 792 },
-    ],
-    dividers: [vline(330, 24, 196), hline(148, 350, 816), hline(240, 24, 816)],
-  };
-}
-
+// NOTE: no explicit entry nests chip sections in the 460px right column anymore — the user
+// wants skills/languages always full-width, which the generic layout provides (with correct
+// row-aware heights via LayoutHints).
 const EXPLICIT: Record<string, CardLayout> = {
-  "profile,solved,streak,skills,heatmap": fullDashboard("skills"),
-  "profile,solved,streak,languages,heatmap": fullDashboard("languages"),
   "profile,solved": {
     width: 340,
     height: 200,

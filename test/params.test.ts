@@ -16,7 +16,7 @@ describe("parseParams defaults", () => {
   it("returns ALL_SECTIONS, default theme, and svg output for an empty query", () => {
     const params = parseParams({});
     expect(params.sections).toEqual(ALL_SECTIONS);
-    expect(params.sections).toEqual(["profile", "solved", "streak", "skills", "heatmap"]);
+    expect(params.sections).toEqual(["profile", "solved", "streak", "skills", "languages", "heatmap"]);
     expect(params.theme).toBe("default");
     expect(params.hideBorder).toBe(false);
     expect(params.transparent).toBe(false);
@@ -27,9 +27,9 @@ describe("parseParams defaults", () => {
     expect(params.output).toBe("svg");
   });
 
-  it("does NOT default in languages (default section set excludes it)", () => {
+  it("defaults in languages (part of the default section set)", () => {
     const params = parseParams({});
-    expect(params.sections).not.toContain("languages");
+    expect(params.sections).toContain("languages");
   });
 });
 

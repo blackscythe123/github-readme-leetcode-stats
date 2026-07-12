@@ -43,7 +43,7 @@ This project is meant to be **deployed as your own instance** — the API only e
 
 ## Sections
 
-Every section is optional and composes into the layout independently — the card's width and height adapt to whatever you include. Default (`sections` omitted) is `profile,solved,streak,skills,heatmap`.
+Every section is optional and composes into the layout independently — the card's width and height adapt to whatever you include. Default (`sections` omitted) is all six: `profile,solved,streak,skills,languages,heatmap`.
 
 | Section | `sections=` value | What it shows |
 |---|---|---|
@@ -51,7 +51,7 @@ Every section is optional and composes into the layout independently — the car
 | Solved | `solved` | Progress ring (solved / total questions) + Easy/Medium/Hard bars |
 | Streak | `streak` | Total submissions · current streak (with fire icon) · highest streak |
 | Skills | `skills` | Top problem tags by solved count, as chips (default, part of `sections`' default set). Chip count is capped by `top_skills=` (1–12, default 12). |
-| Languages | `languages` | Solved-count chips per programming language (opt-in — not included by default; combine freely with `skills`, e.g. `sections=profile,solved,skills,languages`). Chip count is capped by `top_langs=` (1–12, default 12). |
+| Languages | `languages` | Solved-count chips per programming language (part of the default set; combine freely with `skills`). Chip count is capped by `top_langs=` (1–12, default 12). |
 | Heatmap | `heatmap` | Full submission calendar heatmap (up to 52 weeks) with hover tooltips |
 
 ## Options
@@ -60,7 +60,7 @@ All query params are validated and clamped server-side — invalid or out-of-ran
 
 | Param | Values | Default | Description |
 |---|---|---|---|
-| `sections` | comma-separated list of `profile`, `solved`, `streak`, `skills`, `languages`, `heatmap` | `profile,solved,streak,skills,heatmap` | Which sections to render. Unknown tokens are dropped; the remaining ones are always rendered in the canonical order above regardless of the order you pass them in. If nothing valid is left, falls back to the default set. |
+| `sections` | comma-separated list of `profile`, `solved`, `streak`, `skills`, `languages`, `heatmap` | all six | Which sections to render. Unknown tokens are dropped; the remaining ones are always rendered in the canonical order above regardless of the order you pass them in. If nothing valid is left, falls back to the default set. |
 | `theme` | any theme name from [`src/themes.json`](src/themes.json) (see the [full gallery](docs/themes.md)) | `default` | Case-insensitive; underscores are treated as dashes. Unknown names silently fall back to `default`. |
 | `hide_border` | `true` \| `false` | `false` | Makes the card border fully transparent. Combines freely with `transparent` and `border_radius`. |
 | `transparent` | `true` \| `false` | `false` | Makes the **card background** fully transparent (`#0000`) regardless of theme — including gradient themes — and overrides any `background=` you also pass. Border, text, and section colors keep their theme values. Combines freely with `hide_border` and `border_radius`. |

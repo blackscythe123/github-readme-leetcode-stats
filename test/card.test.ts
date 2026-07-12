@@ -159,10 +159,10 @@ describe("renderCard — full dashboard", () => {
     assertWellFormed(svg);
   });
 
-  it("has the mock-specified 840x440 chrome", () => {
+  it("has the full-width generic chrome (840 wide, six sections)", () => {
     expect(svg).toContain('width="840"');
-    expect(svg).toContain('height="440"');
-    expect(svg).toContain('viewBox="0 0 840 440"');
+    expect(svg).toContain('width="840"');
+    expect(svg).toContain('viewBox="0 0 840 ');
   });
 
   it("contains profile content", () => {

@@ -29,6 +29,7 @@ export const ALL_SECTIONS: SectionName[] = [
   "solved",
   "streak",
   "skills",
+  "languages",
   "heatmap",
 ];
 
