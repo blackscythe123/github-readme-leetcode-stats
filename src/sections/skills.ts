@@ -66,6 +66,11 @@ function renderChips(
   let cx = x;
   let cy = y + 22;
   let shown = 0;
+  // Where "+N more" belongs: right after the last chip actually rendered. Without this,
+  // a vertical-overflow break leaves cx/cy pointing at a phantom third row and the
+  // "+N more" text floats on its own line below the chips.
+  let moreX = x;
+  let moreY = y + 22;
   const chips: string[] = [];
 
   for (const item of cappedItems) {
@@ -90,6 +95,8 @@ function renderChips(
       </g>`,
     );
     cx += cw + 8;
+    moreX = cx;
+    moreY = cy;
     shown++;
   }
 
@@ -97,8 +104,8 @@ function renderChips(
   html += chips.join("");
   if (shown < totalItems) {
     html += text(
-      cx + 4,
-      cy + 14,
+      moreX + 4,
+      moreY + 14,
       10.5,
       400,
       theme.dates,

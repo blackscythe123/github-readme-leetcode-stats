@@ -2360,7 +2360,7 @@
     <div class="head-actions">
       <a class="chip-btn" href="https://github.com/blackscythe123/github-readme-leetcode-stats" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:7px;">
         <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-        GitHub
+        Star on GitHub<span id="ghStars" style="opacity:.75"></span>
       </a>
       <a class="chip-btn" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fblackscythe123%2Fgithub-readme-leetcode-stats&env=LEETCODE_USERNAME&envDescription=Your%20LeetCode%20username%20%E2%80%94%20the%20instance%20serves%20only%20this%20user&project-name=github-readme-leetcode-stats" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:7px;">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M12 2 24 22H0L12 2Z"/></svg>
@@ -3235,17 +3235,32 @@ function doRender() {
 
   const seq = ++renderSeq;
   const q = buildQuery();
-  fetch("/api/card" + (q ? "?" + q : ""))
-    .then(function (r) {
+  const url = "/api/card" + (q ? "?" + q : "");
+  const attempt = function () {
+    return fetch(url).then(function (r) {
       if (!r.ok || (r.headers.get("content-type") || "").indexOf("svg") === -1) throw new Error("bad response");
       return r.text();
+    });
+  };
+  attempt()
+    .catch(function () {
+      // One retry after a beat — deploys/network blips shouldn't drop us to the fallback.
+      return new Promise(function (res) { setTimeout(res, 800); }).then(attempt);
     })
     .then(function (svg) {
       if (seq !== renderSeq) return;
       els.previewMount.innerHTML = svg;
+      if (state.fellBack) {
+        state.fellBack = false;
+        if (state.mode === "live") setBanner("live", "Showing live data for " + state.data.username + ".");
+      }
     })
     .catch(function () {
-      if (seq === renderSeq) renderClientSide();
+      if (seq !== renderSeq) return;
+      renderClientSide();
+      // Be loud: this approximate client render is NOT the server card.
+      state.fellBack = true;
+      setBanner("sample", "Preview is temporarily client-rendered (couldn't fetch the live card) — it may differ slightly from the real embed. Interact again or refresh to retry.");
     });
 }
 
@@ -3340,6 +3355,17 @@ els.pageThemeToggle.addEventListener("click", function () {
 buildThemeOptions();
 buildSectionChecks();
 buildColorRows();
+
+// Star count on the header button — one anonymous GitHub API call, silent on failure.
+fetch("https://api.github.com/repos/blackscythe123/github-readme-leetcode-stats")
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (j) {
+    if (j && typeof j.stargazers_count === "number") {
+      const el = document.getElementById("ghStars");
+      if (el) el.textContent = " ★ " + j.stargazers_count;
+    }
+  })
+  .catch(function () {});
 syncColorInputsToTheme();
 els.borderRadiusVal.textContent = state.borderRadius;
 els.topSkillsVal.textContent = state.topSkills;
