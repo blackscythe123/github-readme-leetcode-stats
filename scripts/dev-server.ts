@@ -8,7 +8,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import cardHandler from "../api/card";
+import cardHandler from "../src/handler";
 
 // CJS package (no "type": "module") — __dirname is the Node built-in here.
 const ROOT = path.resolve(__dirname, "..");

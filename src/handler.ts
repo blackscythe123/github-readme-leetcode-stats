@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { RenderableError, type CardData } from "../src/types";
-import { parseParams } from "../src/params";
-import { fetchRawData } from "../src/leetcode";
-import { computeStreaks, epochDayNow } from "../src/stats";
-import { generateOutput } from "../src/output";
+import { RenderableError, type CardData } from "./types";
+import { parseParams } from "./params";
+import { fetchRawData } from "./leetcode";
+import { computeStreaks, epochDayNow } from "./stats";
+import { generateOutput } from "./output";
 
 const SUCCESS_CACHE_CONTROL =
   "public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400";

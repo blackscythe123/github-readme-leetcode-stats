@@ -829,10 +829,26 @@ let THEMES = FALLBACK_THEMES;
   if (!THEMES["default"]) state.theme = Object.keys(THEMES)[0];
 })();
 
+// Ported from src/theme.ts::resolveTheme: base theme <- enabled overrides <- hideBorder (which
+// always wins over any border override, exactly as on the server).
+function resolveThemeJs(themeName, overrides, hideBorder) {
+  const base = THEMES[themeName] || THEMES[Object.keys(THEMES)[0]] || {};
+  const resolved = {};
+  for (const k in base) {
+    if (Object.prototype.hasOwnProperty.call(base, k)) resolved[k] = base[k];
+  }
+  for (const k in overrides) {
+    if (Object.prototype.hasOwnProperty.call(overrides, k)) resolved[k] = overrides[k];
+  }
+  if (hideBorder) resolved.border = "#0000";
+  return resolved;
+}
+
 const els = {};
 ["themeSelect", "sectionChecks", "themeCount", "previewMount", "modeBanner", "modeBannerText",
  "refreshBtn", "embedMd", "embedUrl", "copyMdBtn", "copyUrlBtn", "borderRadius", "borderRadiusVal",
- "toggleHideBorder", "toggleTransparent", "toggleDisableAnim", "toggleShortNumbers", "pageThemeToggle"]
+ "toggleHideBorder", "toggleTransparent", "toggleDisableAnim", "toggleShortNumbers", "pageThemeToggle",
+ "topSkills", "topSkillsVal", "topLangs", "topLangsVal", "colorRows", "resetColorsBtn"]
   .forEach(function (id) { els[id] = document.getElementById(id); });
 
 function buildThemeOptions() {
@@ -858,6 +874,53 @@ function buildSectionChecks() {
       render();
     });
   });
+}
+
+/** One checkbox + one <input type=color> per ThemeColors key (COLOR_KEYS order == params.ts). */
+function buildColorRows() {
+  els.colorRows.innerHTML = COLOR_KEYS.map(function (key) {
+    return '<div class="color-row">' +
+      '<input type="checkbox" data-color-key="' + key + '" id="colorEnable_' + key + '">' +
+      '<input type="color" data-color-input="' + key + '" value="#888888">' +
+      '<span>' + escapeXml(key) + "</span>" +
+      "</div>";
+  }).join("");
+
+  Array.prototype.forEach.call(els.colorRows.querySelectorAll("input[data-color-key]"), function (cb) {
+    cb.addEventListener("change", function () {
+      const key = cb.getAttribute("data-color-key");
+      const ci = els.colorRows.querySelector('input[data-color-input="' + key + '"]');
+      if (cb.checked) {
+        state.colorOverrides[key] = ci.value;
+      } else {
+        delete state.colorOverrides[key];
+      }
+      render();
+    });
+  });
+  Array.prototype.forEach.call(els.colorRows.querySelectorAll("input[data-color-input]"), function (ci) {
+    ci.addEventListener("input", function () {
+      const key = ci.getAttribute("data-color-input");
+      const cb = els.colorRows.querySelector('input[data-color-key="' + key + '"]');
+      if (cb && cb.checked) {
+        state.colorOverrides[key] = ci.value;
+        render();
+      }
+    });
+  });
+}
+
+/** Refreshes color-picker default swatches to the active theme's own colors, but never
+ * touches a key the user has already enabled as an override. */
+function syncColorInputsToTheme() {
+  if (!els.colorRows) return;
+  const t = THEMES[state.theme] || THEMES[Object.keys(THEMES)[0]] || {};
+  for (let i = 0; i < COLOR_KEYS.length; i++) {
+    const key = COLOR_KEYS[i];
+    if (Object.prototype.hasOwnProperty.call(state.colorOverrides, key)) continue;
+    const ci = els.colorRows.querySelector('input[data-color-input="' + key + '"]');
+    if (ci && t[key]) ci.value = "#" + rgbOnly(t[key]);
+  }
 }
 
 function isValidCardData(j) {
@@ -924,6 +987,14 @@ function buildQuery() {
   if (Math.abs(state.borderRadius - 4.5) > 0.001) params.push(["border_radius", String(state.borderRadius)]);
   if (state.disableAnimations) params.push(["disable_animations", "true"]);
   if (state.shortNumbers) params.push(["short_numbers", "true"]);
+  if (state.topSkills !== 12) params.push(["top_skills", String(state.topSkills)]);
+  if (state.topLangs !== 12) params.push(["top_langs", String(state.topLangs)]);
+  for (let i = 0; i < COLOR_KEYS.length; i++) {
+    const key = COLOR_KEYS[i];
+    if (Object.prototype.hasOwnProperty.call(state.colorOverrides, key)) {
+      params.push([key, String(state.colorOverrides[key]).replace(/^#/, "")]);
+    }
+  }
   return params.map(function (p) { return encodeURIComponent(p[0]) + "=" + encodeURIComponent(p[1]); }).join("&");
 }
 
@@ -938,7 +1009,15 @@ function updateEmbedBox() {
 }
 
 function render() {
-  const t = THEMES[state.theme] || THEMES[Object.keys(THEMES)[0]];
+  // Mirrors params.ts::parseColorOverrides + the "transparent always wins" rule: transparent
+  // forces background to "#0000" even over an explicitly enabled background override.
+  const overrides = {};
+  for (const k in state.colorOverrides) {
+    if (Object.prototype.hasOwnProperty.call(state.colorOverrides, k)) overrides[k] = state.colorOverrides[k];
+  }
+  if (state.transparent) overrides.background = "#0000";
+  const t = resolveThemeJs(state.theme, overrides, state.hideBorder);
+
   let svg;
   if (state.sections.size === 0) {
     svg = emptyStateSvg();
@@ -946,10 +1025,10 @@ function render() {
     const layout = computeLayout(state.sections);
     const opts = {
       borderRadius: state.borderRadius,
-      transparent: state.transparent,
-      hideBorder: state.hideBorder,
       animate: !state.disableAnimations,
       short: state.shortNumbers,
+      topSkills: state.topSkills,
+      topLangs: state.topLangs,
     };
     svg = composeCard(t, layout, state.data || buildSampleData(), state.sections, opts);
   }
@@ -996,7 +1075,11 @@ function copyText(text, btn) {
 }
 
 /* ---- control wiring ---- */
-els.themeSelect.addEventListener("change", function () { state.theme = els.themeSelect.value; render(); });
+els.themeSelect.addEventListener("change", function () {
+  state.theme = els.themeSelect.value;
+  syncColorInputsToTheme();
+  render();
+});
 els.toggleHideBorder.addEventListener("change", function () { state.hideBorder = els.toggleHideBorder.checked; render(); });
 els.toggleTransparent.addEventListener("change", function () { state.transparent = els.toggleTransparent.checked; render(); });
 els.toggleDisableAnim.addEventListener("change", function () { state.disableAnimations = els.toggleDisableAnim.checked; render(); });
@@ -1004,6 +1087,23 @@ els.toggleShortNumbers.addEventListener("change", function () { state.shortNumbe
 els.borderRadius.addEventListener("input", function () {
   state.borderRadius = Number(els.borderRadius.value);
   els.borderRadiusVal.textContent = state.borderRadius;
+  render();
+});
+els.topSkills.addEventListener("input", function () {
+  state.topSkills = Number(els.topSkills.value);
+  els.topSkillsVal.textContent = state.topSkills;
+  render();
+});
+els.topLangs.addEventListener("input", function () {
+  state.topLangs = Number(els.topLangs.value);
+  els.topLangsVal.textContent = state.topLangs;
+  render();
+});
+els.resetColorsBtn.addEventListener("click", function (e) {
+  e.preventDefault();
+  state.colorOverrides = {};
+  Array.prototype.forEach.call(els.colorRows.querySelectorAll("input[data-color-key]"), function (cb) { cb.checked = false; });
+  syncColorInputsToTheme();
   render();
 });
 els.copyMdBtn.addEventListener("click", function () { copyText(els.embedMd.textContent, els.copyMdBtn); });
@@ -1026,7 +1126,11 @@ els.pageThemeToggle.addEventListener("click", function () {
 /* ---- boot ---- */
 buildThemeOptions();
 buildSectionChecks();
+buildColorRows();
+syncColorInputsToTheme();
 els.borderRadiusVal.textContent = state.borderRadius;
+els.topSkillsVal.textContent = state.topSkills;
+els.topLangsVal.textContent = state.topLangs;
 loadData();
 
 })();
