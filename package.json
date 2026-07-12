@@ -1,0 +1,20 @@
+{
+  "name": "github-readme-leetcode-stats",
+  "version": "0.1.0",
+  "description": "Composable LeetCode dashboard card for your GitHub README — solved stats, streaks, skills, heatmap, 160+ themes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "port-themes": "tsx scripts/port-themes.ts",
+    "dev": "tsx scripts/dev-server.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@vercel/node": "^5.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
