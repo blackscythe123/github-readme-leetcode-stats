@@ -1,6 +1,6 @@
 # Theme gallery
 
-Every theme in [`src/themes.json`](../src/themes.json) — **166 themes** — previewed below with every section turned on (`sections=profile,solved,streak,skills,languages,heatmap`).
+Every theme in [`src/themes.json`](../src/themes.json) — **167 themes** — previewed below with every section turned on (`sections=profile,solved,streak,skills,languages,heatmap`).
 
 The previews are static SVGs pre-rendered by [`scripts/gen-theme-docs.ts`](../scripts/gen-theme-docs.ts) and committed to the repo, so browsing this page puts **zero load** on the live instance. They're regenerated whenever the themes or the renderer change, and live cards additionally show your avatar. For an interactive preview with your own toggles, use the [live demo](https://github-readme-leetcode-stats.vercel.app/).
 
@@ -52,6 +52,7 @@ Pick a theme name from the table below, then pass it as `?theme=<name>` on your 
 | `dayfox` | ![dayfox](previews/dayfox.svg) |
 | `deepblue` | ![deepblue](previews/deepblue.svg) |
 | `default` | ![default](previews/default.svg) |
+| `default-dark` | ![default-dark](previews/default-dark.svg) |
 | `deuteranopia-friendly-theme` | ![deuteranopia-friendly-theme](previews/deuteranopia-friendly-theme.svg) |
 | `discord-old-blurple` | ![discord-old-blurple](previews/discord-old-blurple.svg) |
 | `dracula` | ![dracula](previews/dracula.svg) |

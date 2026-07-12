@@ -1,21 +1,21 @@
 # github-readme-leetcode-stats
 
-A composable LeetCode dashboard card for your GitHub README — profile, solved stats, streaks, skills/languages, and a submission heatmap, each section independently toggleable, in 166 themes.
+A composable LeetCode dashboard card for your GitHub README — profile, solved stats, streaks, skills/languages, and a submission heatmap, each section independently toggleable, in 167 themes.
 
 <p align="center">
   <a href="https://github-readme-leetcode-stats.vercel.app/">
-    <img src="https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=default" alt="LeetCode Stats demo card — all sections, default theme" width="820" />
+    <img src="docs/previews/default.svg" alt="LeetCode Stats demo card — all sections, default theme" width="820" />
   </a>
 </p>
 
 <p align="center"><sub>⬆ live render from the demo instance, default theme, all six sections — click it to open the interactive demo page</sub></p>
 
-> The card above renders live from `https://github-readme-leetcode-stats.vercel.app`, a single-user demo instance. Once you deploy your own copy (see [Quick start](#quick-start)), replace that domain everywhere in this README with your own deployment's.
+> The card above is a pre-rendered preview; clicking it opens the live demo at `https://github-readme-leetcode-stats.vercel.app`, a single-user instance. Once you deploy your own copy (see [Quick start](#quick-start)), replace that domain everywhere in this README with your own deployment's.
 
 ## Features
 
 - **Composable sections** — pick any combination of `profile`, `solved`, `streak`, `skills`, `languages`, `heatmap` via `?sections=`; the layout re-flows and the card resizes automatically.
-- **166 themes**, ported from [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats), plus per-key color overrides and gradient backgrounds — browse them all in the [theme gallery](docs/themes.md).
+- **167 themes**, ported from [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats), plus per-key color overrides and gradient backgrounds — browse them all in the [theme gallery](docs/themes.md).
 - **Real streaks**, computed from your full LeetCode submission calendar (not just the trailing-12-months view), using LeetCode's own UTC day boundary.
 - **Load-triggered animations** (progress bars fill, the solved ring sweeps in, numbers pop, the current-streak ring/fire pulse) — these play inside GitHub's `<img>` README embed. Turn them off with `disable_animations=true`.
 - **Submission heatmap** with hover tooltips, and a full **interactive demo page** (this project's `/`) with a live control panel and a copy-pasteable embed snippet.
@@ -98,13 +98,13 @@ https://your-app.vercel.app/api/card?type=json
 
 ## Themes
 
-166 themes are available via `?theme=<name>`, ported (with attribution) from `github-readme-streak-stats`. Four popular ones:
+167 themes are available via `?theme=<name>`, ported (with attribution) from `github-readme-streak-stats`. Four popular ones:
 
 | `default` | `dark` | `github-dark` | `tokyonight` |
 |---|---|---|---|
 | ![default](docs/previews/default.svg) | ![dark](docs/previews/dark.svg) | ![github-dark](docs/previews/github-dark.svg) | ![tokyonight](docs/previews/tokyonight.svg) |
 
-### 🎨 [See all 166 themes →](docs/themes.md)
+### 🎨 [See all 167 themes →](docs/themes.md)
 
 The gallery links above render live from the demo instance with every section enabled, in alphabetical order — pick any `theme` key and drop it into `?theme=<name>` on your own deployment.
 

@@ -165,12 +165,41 @@ function sortThemesByName(themes: Record<string, ThemeColors>): Record<string, T
   return sorted;
 }
 
+// Themes that exist ONLY in this project (not upstream). Merged after parsing so they
+// survive every regeneration from themes.php. Collisions with upstream names throw.
+const CUSTOM_THEMES: Record<string, ThemeColors> = {
+  // "default" with the GitHub-dark-markdown background (#0D1117): same orange accents,
+  // light text instead of dark. Requested so the stock look works on dark READMEs.
+  "default-dark": {
+    background: "#0D1117",
+    border: "#E4E2E2",
+    stroke: "#E4E2E2",
+    ring: "#FB8C00",
+    fire: "#FB8C00",
+    currStreakNum: "#FEFEFE",
+    sideNums: "#FEFEFE",
+    currStreakLabel: "#FB8C00",
+    sideLabels: "#FEFEFE",
+    dates: "#9E9E9E",
+    excludeDaysLabel: "#9E9E9E",
+  },
+};
+
 async function main(): Promise<void> {
   console.log(`port-themes: fetching ${THEMES_PHP_URL} ...`);
   const phpSource = await fetchThemesPhp();
 
   console.log("port-themes: parsing theme blocks ...");
   const themes = parseThemes(phpSource);
+
+  for (const [name, colors] of Object.entries(CUSTOM_THEMES)) {
+    if (themes[name]) {
+      throw new Error(
+        `port-themes: custom theme "${name}" now collides with an upstream theme — rename it.`,
+      );
+    }
+    themes[name] = colors;
+  }
 
   console.log(`port-themes: parsed ${Object.keys(themes).length} themes, validating ...`);
   validateThemes(themes);

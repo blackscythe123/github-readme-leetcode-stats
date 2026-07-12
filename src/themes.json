@@ -571,6 +571,19 @@
     "dates": "#464646",
     "excludeDaysLabel": "#464646"
   },
+  "default-dark": {
+    "background": "#0D1117",
+    "border": "#E4E2E2",
+    "stroke": "#E4E2E2",
+    "ring": "#FB8C00",
+    "fire": "#FB8C00",
+    "currStreakNum": "#FEFEFE",
+    "sideNums": "#FEFEFE",
+    "currStreakLabel": "#FB8C00",
+    "sideLabels": "#FEFEFE",
+    "dates": "#9E9E9E",
+    "excludeDaysLabel": "#9E9E9E"
+  },
   "deuteranopia-friendly-theme": {
     "background": "#000000",
     "border": "#E4E2E2",
