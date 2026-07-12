@@ -46,13 +46,14 @@
   .pitch { font-size: 13.5px; color: var(--text-dim); max-width: 640px; line-height: 1.55; margin: 0; }
   .head-actions { display: flex; gap: 8px; align-items: center; }
 
-  button.chip-btn {
+  button.chip-btn, a.chip-btn {
     font: inherit; font-size: 12.5px; cursor: pointer; background: var(--bg-elev);
     color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 7px 12px;
     display: inline-flex; align-items: center; gap: 6px; transition: border-color .15s, background .15s;
   }
-  button.chip-btn:hover { border-color: var(--accent); }
-  button.chip-btn:active { transform: translateY(1px); }
+  button.chip-btn:hover, a.chip-btn:hover { border-color: var(--accent); }
+  button.chip-btn:active, a.chip-btn:active { transform: translateY(1px); }
+  a.chip-btn { text-decoration: none; }
 
   .banner {
     margin-top: 18px; padding: 10px 14px; border-radius: 8px; font-size: 12.5px;
@@ -2357,6 +2358,14 @@
       </p>
     </div>
     <div class="head-actions">
+      <a class="chip-btn" href="https://github.com/blackscythe123/github-readme-leetcode-stats" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:7px;">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+      <a class="chip-btn" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fblackscythe123%2Fgithub-readme-leetcode-stats&env=LEETCODE_USERNAME&envDescription=Your%20LeetCode%20username%20%E2%80%94%20the%20instance%20serves%20only%20this%20user&project-name=github-readme-leetcode-stats" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:7px;">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M12 2 24 22H0L12 2Z"/></svg>
+        Deploy your own
+      </a>
       <button class="chip-btn" id="pageThemeToggle" type="button">Toggle page theme</button>
     </div>
   </header>
