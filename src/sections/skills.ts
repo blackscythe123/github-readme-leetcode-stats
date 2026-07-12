@@ -35,6 +35,21 @@ function fadeIn(opts: RenderOpts, kind: string, delay: number): string {
     : "";
 }
 
+/**
+ * How many chip rows (1 or 2) renderChips will actually produce for these items.
+ * MUST mirror renderChips' wrap math exactly — layout.ts uses this to allocate section
+ * height so dividers never cross row-2 chips.
+ */
+export function chipRowCount(items: NamedCount[], cap: number, w: number): 1 | 2 {
+  let cx = 0;
+  for (const item of items.slice(0, cap)) {
+    const cw = `${item.name} ×${item.count}`.length * 6.2 + 18;
+    if (cx + cw > w) return 2;
+    cx += cw + 8;
+  }
+  return 1;
+}
+
 function renderChips(
   theme: ThemeColors,
   items: NamedCount[],

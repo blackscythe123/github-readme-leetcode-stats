@@ -28,6 +28,14 @@ export interface CardLayout {
   dividers: DividerLine[];
 }
 
+/** Data-dependent row counts for the chip sections (computed by card.ts via
+ * skills.ts::chipRowCount). Consumed by the generic layout so a 2-row chip band
+ * gets 104px instead of 78px — otherwise the next divider slices through row 2. */
+export interface LayoutHints {
+  skillsRows?: 1 | 2;
+  languagesRows?: 1 | 2;
+}
+
 const CANONICAL_ORDER: SectionName[] = [
   "profile",
   "solved",
@@ -54,18 +62,6 @@ function hline(y: number, x1: number, x2: number): DividerLine {
 // Explicit rule table — geometry ported verbatim from the approved mock (or the exact numbers
 // given in the build spec) for every arrangement that was actually designed/demonstrated.
 // ---------------------------------------------------------------------------
-
-function middleRowLayout(sections: [SectionName, SectionName]): CardLayout {
-  return {
-    width: 840,
-    height: 198,
-    placements: [
-      { section: sections[0], x: 24, y: 22, w: 792 },
-      { section: sections[1], x: 24, y: 100, w: 792 },
-    ],
-    dividers: [],
-  };
-}
 
 function fullDashboard(middle: SectionName): CardLayout {
   return {
@@ -140,7 +136,6 @@ const EXPLICIT: Record<string, CardLayout> = {
     placements: [{ section: "languages", x: 24, y: 22, w: 792 }],
     dividers: [],
   },
-  "skills,languages": middleRowLayout(["skills", "languages"]),
 };
 
 // ---------------------------------------------------------------------------
@@ -159,10 +154,18 @@ const SOLVED_ALONE_H = 116; // height added by "solved" when it opens the left c
 const SOLVED_AFTER_PROFILE_H = 118; // height added by "solved" following "profile"
 const STREAK_CONTENT_H = 98; // vertical extent of streak's own content
 const ROW_GAP = 24;
-const SKILLS_ROW_H = 78;
+/** Chip band heights: content bottom is y+42 (1 row) / y+68 (2 rows); the following divider
+ * sits 24px below content, the next section 12px after that. */
+const CHIPS_1ROW_H = 78;
+const CHIPS_2ROW_H = 104;
 const HEATMAP_H = 180;
 
-function genericLayout(secs: SectionName[]): CardLayout {
+function chipBandHeight(sec: SectionName, hints: LayoutHints): number {
+  const rows = sec === "skills" ? hints.skillsRows : hints.languagesRows;
+  return rows === 2 ? CHIPS_2ROW_H : CHIPS_1ROW_H;
+}
+
+function genericLayout(secs: SectionName[], hints: LayoutHints): CardLayout {
   const leftSecs = secs.filter((s) => s === "profile" || s === "solved");
   const hasStreak = secs.includes("streak");
   const middleSecs = secs.filter((s) => s === "skills" || s === "languages");
@@ -209,7 +212,7 @@ function genericLayout(secs: SectionName[]): CardLayout {
   for (const sec of middleSecs) {
     if (lastKind !== "none") dividers.push(hline(y - 12, MARGIN, CARD_W - MARGIN));
     placements.push({ section: sec, x: MARGIN, y, w: CARD_W - MARGIN * 2 });
-    y += SKILLS_ROW_H;
+    y += chipBandHeight(sec, hints);
     lastKind = "middle";
   }
 
@@ -224,7 +227,7 @@ function genericLayout(secs: SectionName[]): CardLayout {
   return { width: CARD_W, height, placements, dividers };
 }
 
-export function layout(sections: SectionName[]): CardLayout {
+export function layout(sections: SectionName[], hints: LayoutHints = {}): CardLayout {
   const secs = sortCanonical(sections);
   if (secs.length === 0) {
     // Defensive: params.ts never produces an empty list, but don't emit a 0x0 SVG if it happened.
@@ -233,5 +236,5 @@ export function layout(sections: SectionName[]): CardLayout {
   const key = secs.join(",");
   const explicit = EXPLICIT[key];
   if (explicit) return explicit;
-  return genericLayout(secs);
+  return genericLayout(secs, hints);
 }

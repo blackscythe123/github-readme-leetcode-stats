@@ -167,6 +167,10 @@
     (a) set `window.__LC_THEMES__ = { ...contents of src/themes.json... };` in a script
         tag placed anywhere before the closing </body>, or
     (b) replace the placeholder comment inside the <script id="lc-full-themes-data">
+        tag below with the JSON text of src/themes.json.
+  If neither is present, the page falls back to ~24 embedded popular themes.
+-->
+<script id="lc-full-themes-data" type="application/json">
 {
   "ads-juicy-fresh": {
     "background": "#0D0C15",
@@ -3176,9 +3180,10 @@ function updateEmbedBox() {
   els.embedUrl.textContent = url;
 }
 
-function render() {
-  // Mirrors params.ts::parseColorOverrides + the "transparent always wins" rule: transparent
-  // forces background to "#0000" even over an explicitly enabled background override.
+/* Client-side compose — offline/file:// fallback only. The primary path below fetches the
+ * REAL server SVG so the preview is pixel-identical to what GitHub embeds (single renderer
+ * as source of truth; native <title> heatmap tooltips work because the SVG is inlined). */
+function renderClientSide() {
   const overrides = {};
   for (const k in state.colorOverrides) {
     if (Object.prototype.hasOwnProperty.call(state.colorOverrides, k)) overrides[k] = state.colorOverrides[k];
@@ -3201,7 +3206,36 @@ function render() {
     svg = composeCard(t, layout, state.data || buildSampleData(), state.sections, opts);
   }
   els.previewMount.innerHTML = svg;
-  updateEmbedBox();
+}
+
+let renderSeq = 0;
+let renderTimer = null;
+function render() {
+  updateEmbedBox(); // URL reacts instantly; the preview fetch is debounced below
+  if (renderTimer) clearTimeout(renderTimer);
+  renderTimer = setTimeout(doRender, 180);
+}
+
+function doRender() {
+  const serverAvailable =
+    !(location.protocol === "file:" || !location.origin || location.origin === "null") &&
+    state.sections.size > 0;
+  if (!serverAvailable) { renderClientSide(); return; }
+
+  const seq = ++renderSeq;
+  const q = buildQuery();
+  fetch("/api/card" + (q ? "?" + q : ""))
+    .then(function (r) {
+      if (!r.ok || (r.headers.get("content-type") || "").indexOf("svg") === -1) throw new Error("bad response");
+      return r.text();
+    })
+    .then(function (svg) {
+      if (seq !== renderSeq) return;
+      els.previewMount.innerHTML = svg;
+    })
+    .catch(function () {
+      if (seq === renderSeq) renderClientSide();
+    });
 }
 
 /* ---- tooltip (delegated, wired once) ---- */

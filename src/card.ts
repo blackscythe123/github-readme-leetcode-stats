@@ -14,8 +14,11 @@ import { epochDayNow } from "./stats";
 import { render as renderProfile } from "./sections/profile";
 import { render as renderSolved } from "./sections/solved";
 import { render as renderStreak } from "./sections/streak";
-import { renderSkills, renderLanguages } from "./sections/skills";
+import { renderSkills, renderLanguages, chipRowCount } from "./sections/skills";
 import { render as renderHeatmap } from "./sections/heatmap";
+
+/** Middle-band width used by the generic layout — hints only matter there. */
+const GENERIC_CHIPS_W = 792;
 
 interface SectionOpts {
   animate: boolean;
@@ -83,7 +86,10 @@ function buildBackground(
 }
 
 export function renderCard(data: CardData, params: CardParams, theme: ThemeColors): string {
-  const cardLayout = layout(params.sections);
+  const cardLayout = layout(params.sections, {
+    skillsRows: chipRowCount(data.skills, params.topSkills, GENERIC_CHIPS_W),
+    languagesRows: chipRowCount(data.languages, params.topLangs, GENERIC_CHIPS_W),
+  });
   const { width, height, placements, dividers } = cardLayout;
   const uid = nextUid();
   const animate = !params.disableAnimations;
