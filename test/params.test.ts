@@ -222,6 +222,42 @@ describe("transparent param", () => {
   });
 });
 
+describe("top_skills / top_langs", () => {
+  it("default to 12 when absent", () => {
+    const params = parseParams({});
+    expect(params.topSkills).toBe(12);
+    expect(params.topLangs).toBe(12);
+  });
+
+  it("parses a valid in-range value", () => {
+    expect(parseParams({ top_skills: "3" }).topSkills).toBe(3);
+    expect(parseParams({ top_langs: "5" }).topLangs).toBe(5);
+  });
+
+  it("clamps 0 up to the minimum of 1", () => {
+    expect(parseParams({ top_skills: "0" }).topSkills).toBe(1);
+    expect(parseParams({ top_langs: "0" }).topLangs).toBe(1);
+  });
+
+  it("clamps a negative value up to 1", () => {
+    expect(parseParams({ top_skills: "-5" }).topSkills).toBe(1);
+  });
+
+  it("clamps values above 12 down to 12", () => {
+    expect(parseParams({ top_skills: "99" }).topSkills).toBe(12);
+    expect(parseParams({ top_langs: "99" }).topLangs).toBe(12);
+  });
+
+  it("falls back to 12 for non-numeric junk", () => {
+    expect(parseParams({ top_skills: "junk" }).topSkills).toBe(12);
+    expect(parseParams({ top_langs: "junk" }).topLangs).toBe(12);
+  });
+
+  it("takes the first value of an array-valued param", () => {
+    expect(parseParams({ top_skills: ["3", "7"] }).topSkills).toBe(3);
+  });
+});
+
 describe("output type", () => {
   it("defaults to svg", () => {
     expect(parseParams({}).output).toBe("svg");

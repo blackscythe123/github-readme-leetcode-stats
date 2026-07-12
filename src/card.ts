@@ -22,6 +22,8 @@ interface SectionOpts {
   uid: string;
   today: number;
   short: boolean;
+  topSkills: number;
+  topLangs: number;
 }
 
 type SectionRenderer = (
@@ -90,7 +92,14 @@ export function renderCard(data: CardData, params: CardParams, theme: ThemeColor
 
   const { defs: gradientDefs, fillAttr: bgFill } = buildBackground(theme.background, uid);
 
-  const opts: SectionOpts = { animate, uid, today, short: params.shortNumbers };
+  const opts: SectionOpts = {
+    animate,
+    uid,
+    today,
+    short: params.shortNumbers,
+    topSkills: params.topSkills,
+    topLangs: params.topLangs,
+  };
 
   const sectionsMarkup = placements
     .map((p) => RENDERERS[p.section](theme, data, p.x, p.y, p.w, opts))

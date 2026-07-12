@@ -43,6 +43,10 @@ export interface CardParams {
   colorOverrides: Partial<ThemeColors>; // values already validated + "#"-prefixed
   disableAnimations: boolean;
   shortNumbers: boolean;
+  /** Max skill chips to render (top_skills=N). Clamped [1, 12]; default 12. */
+  topSkills: number;
+  /** Max language chips to render (top_langs=N). Clamped [1, 12]; default 12. */
+  topLangs: number;
   output: "svg" | "json";
 }
 

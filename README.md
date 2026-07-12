@@ -1,17 +1,21 @@
 # github-readme-leetcode-stats
 
-A composable LeetCode dashboard card for your GitHub README — profile, solved stats, streaks, skills/languages, and a submission heatmap, each section independently toggleable, in 160+ themes.
+A composable LeetCode dashboard card for your GitHub README — profile, solved stats, streaks, skills/languages, and a submission heatmap, each section independently toggleable, in 166 themes.
 
 <p align="center">
-  <img src="https://YOUR-DEPLOYMENT.vercel.app/api/card" alt="LeetCode Stats" width="820" />
+  <a href="https://github-readme-leetcode-stats.vercel.app/">
+    <img src="https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=default" alt="LeetCode Stats demo card — all sections, default theme" width="820" />
+  </a>
 </p>
 
-> Replace `YOUR-DEPLOYMENT.vercel.app` everywhere in this README with your own deployment's domain once you've deployed your own instance (see [Quick start](#quick-start)).
+<p align="center"><sub>⬆ live render from the demo instance, default theme, all six sections — click it to open the interactive demo page</sub></p>
+
+> The card above renders live from `https://github-readme-leetcode-stats.vercel.app`, a single-user demo instance. Once you deploy your own copy (see [Quick start](#quick-start)), replace that domain everywhere in this README with your own deployment's.
 
 ## Features
 
 - **Composable sections** — pick any combination of `profile`, `solved`, `streak`, `skills`, `languages`, `heatmap` via `?sections=`; the layout re-flows and the card resizes automatically.
-- **160+ themes**, ported from [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats), plus per-key color overrides and gradient backgrounds.
+- **166 themes**, ported from [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats), plus per-key color overrides and gradient backgrounds — browse them all in the [theme gallery](docs/themes.md).
 - **Real streaks**, computed from your full LeetCode submission calendar (not just the trailing-12-months view), using LeetCode's own UTC day boundary.
 - **Load-triggered animations** (progress bars fill, the solved ring sweeps in, numbers pop, the current-streak ring/fire pulse) — these play inside GitHub's `<img>` README embed. Turn them off with `disable_animations=true`.
 - **Submission heatmap** with hover tooltips, and a full **interactive demo page** (this project's `/`) with a live control panel and a copy-pasteable embed snippet.
@@ -46,25 +50,29 @@ Every section is optional and composes into the layout independently — the car
 | Profile | `profile` | LeetCode logo, username, global rank, avatar |
 | Solved | `solved` | Progress ring (solved / total questions) + Easy/Medium/Hard bars |
 | Streak | `streak` | Total submissions · current streak (with fire icon) · highest streak |
-| Skills | `skills` | Top problem tags by solved count, as chips (default, part of `sections`' default set) |
-| Languages | `languages` | Solved-count chips per programming language (opt-in — not included by default; combine freely with `skills`, e.g. `sections=profile,solved,skills,languages`) |
+| Skills | `skills` | Top problem tags by solved count, as chips (default, part of `sections`' default set). Chip count is capped by `top_skills=` (1–12, default 12). |
+| Languages | `languages` | Solved-count chips per programming language (opt-in — not included by default; combine freely with `skills`, e.g. `sections=profile,solved,skills,languages`). Chip count is capped by `top_langs=` (1–12, default 12). |
 | Heatmap | `heatmap` | Full submission calendar heatmap (up to 52 weeks) with hover tooltips |
 
 ## Options
 
-All query params are validated and clamped server-side — invalid values fall back to defaults rather than erroring.
+All query params are validated and clamped server-side — invalid or out-of-range values fall back to defaults rather than erroring.
 
 | Param | Values | Default | Description |
 |---|---|---|---|
-| `sections` | comma-separated list from the table above | `profile,solved,streak,skills,heatmap` | Which sections to render, and in what order. |
-| `theme` | any theme name from `src/themes.json` | `default` | Unknown names silently fall back to `default`. |
+| `sections` | comma-separated list of `profile`, `solved`, `streak`, `skills`, `languages`, `heatmap` | `profile,solved,streak,skills,heatmap` | Which sections to render. Unknown tokens are dropped; the remaining ones are always rendered in the canonical order above regardless of the order you pass them in. If nothing valid is left, falls back to the default set. |
+| `theme` | any theme name from [`src/themes.json`](src/themes.json) (see the [full gallery](docs/themes.md)) | `default` | Case-insensitive; underscores are treated as dashes. Unknown names silently fall back to `default`. |
 | `hide_border` | `true` \| `false` | `false` | Makes the card border fully transparent. Combines freely with `transparent` and `border_radius`. |
-| `transparent` | `true` \| `false` | `false` | Makes the **card background** fully transparent (`#0000`) regardless of theme — including gradient themes. Border, text, and section colors keep their theme values. Combines freely with `hide_border` and `border_radius`. |
-| `border_radius` | number, `0`–`60` | `4.5` | Corner rounding in px. `0` = square corners. |
+| `transparent` | `true` \| `false` | `false` | Makes the **card background** fully transparent (`#0000`) regardless of theme — including gradient themes — and overrides any `background=` you also pass. Border, text, and section colors keep their theme values. Combines freely with `hide_border` and `border_radius`. |
+| `border_radius` | number, `0`–`60` | `4.5` | Corner rounding in px. `0` = square corners. Non-numeric values fall back to the default. |
 | `disable_animations` | `true` \| `false` | `false` | Strips all load-triggered animations (bar fill, ring sweep, number pop-in, streak glow) for a fully static render. |
 | `short_numbers` | `true` \| `false` | `false` | Abbreviates large counts, e.g. `1500` → `1.5K`. |
+| `top_skills` | integer, `1`–`12` | `12` | Max number of skill chips shown in the `skills` section. Out-of-range values are clamped into `1`–`12`. |
+| `top_langs` | integer, `1`–`12` | `12` | Max number of language chips shown in the `languages` section. Out-of-range values are clamped into `1`–`12`. |
 | `type` | `svg` \| `json` | `svg` | `svg` returns the card image; `json` returns the raw computed data (used by the demo page and useful for building your own renderer). |
-| `background`, `border`, `stroke`, `ring`, `fire`, `currStreakNum`, `sideNums`, `currStreakLabel`, `sideLabels`, `dates`, `excludeDaysLabel` | hex color (3/4/6/8-digit) | theme's value | Per-key color overrides on top of the selected `theme`. `background` also accepts a gradient: `deg,hex,hex[,hex...]` (e.g. `35,4158D0,C850C0,FFCC70`). |
+| `background`, `border`, `stroke`, `ring`, `fire`, `currStreakNum`, `sideNums`, `currStreakLabel`, `sideLabels`, `dates`, `excludeDaysLabel` | hex color (`fff`/`ffff`/`ffffff`/`ffffffff`, with or without a leading `#`) or a [standard CSS color name](https://developer.mozilla.org/en-US/docs/Web/CSS/named-color) (e.g. `crimson`) | theme's value | Per-key color overrides on top of the selected `theme`. Invalid values are ignored (the theme's own color is kept). `background` also accepts a gradient: `deg,hex,hex[,hex...]` — a rotation in degrees followed by 2 or more hex color stops, no `#`, e.g. `35,4158d0,c850c0,ffcc70`. |
+
+`true`/`false` flags only recognize the exact lowercase string `true` as "on" — anything else (including the param being omitted) is treated as `false`.
 
 Example combining several options:
 
@@ -72,34 +80,33 @@ Example combining several options:
 https://your-app.vercel.app/api/card?theme=github-dark&sections=profile,solved,streak&hide_border=true&border_radius=12&short_numbers=true
 ```
 
-## Theme gallery
+More examples:
 
-The full catalog (166 themes, ported with attribution from `github-readme-streak-stats`) lives in [`src/themes.json`](./src/themes.json) — pass any key from that file as `?theme=`. A sample:
+```
+# Only the skills section, top 5 chips
+https://your-app.vercel.app/api/card?sections=skills&top_skills=5
 
-| Theme | Preview |
-|---|---|
-| `default` | `?theme=default` |
-| `dark` | `?theme=dark` |
-| `radical` | `?theme=radical` |
-| `merko` | `?theme=merko` |
-| `gruvbox` | `?theme=gruvbox` |
-| `tokyonight` | `?theme=tokyonight` |
-| `onedark` | `?theme=onedark` |
-| `cobalt` | `?theme=cobalt` |
-| `synthwave` | `?theme=synthwave` |
-| `highcontrast` | `?theme=highcontrast` |
-| `dracula` | `?theme=dracula` |
-| `algolia` | `?theme=algolia` |
-| `gotham` | `?theme=gotham` |
-| `monokai` | `?theme=monokai` |
-| `nord` | `?theme=nord` |
-| `shades-of-purple` | `?theme=shades-of-purple` |
-| `vue` | `?theme=vue` |
-| `react` | `?theme=react` |
-| `github-dark` | `?theme=github-dark` |
-| `ambient-gradient` (gradient background) | `?theme=ambient-gradient` |
+# Languages instead of skills, top 8 chips, transparent background
+https://your-app.vercel.app/api/card?sections=profile,languages&top_langs=8&transparent=true
 
-Each preview link is `https://your-app.vercel.app/api/card?theme=<name>` — swap in your own deployment domain. Browse and live-preview **all 166 themes** interactively on your deployment's demo page (`/`), which also shows every section-composition option.
+# A custom gradient background over the tokyonight theme, no border
+https://your-app.vercel.app/api/card?theme=tokyonight&background=35,4158d0,c850c0,ffcc70&hide_border=true
+
+# Raw JSON instead of an SVG card
+https://your-app.vercel.app/api/card?type=json
+```
+
+## Themes
+
+166 themes are available via `?theme=<name>`, ported (with attribution) from `github-readme-streak-stats`. Four popular ones:
+
+| `default` | `dark` | `github-dark` | `tokyonight` |
+|---|---|---|---|
+| ![default](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=default) | ![dark](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=dark) | ![github-dark](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=github-dark) | ![tokyonight](https://github-readme-leetcode-stats.vercel.app/api/card?sections=profile%2Csolved%2Cstreak%2Cskills%2Clanguages%2Cheatmap&theme=tokyonight) |
+
+### 🎨 [See all 166 themes →](docs/themes.md)
+
+The gallery links above render live from the demo instance with every section enabled, in alphabetical order — pick any `theme` key and drop it into `?theme=<name>` on your own deployment.
 
 ## Honest notes
 
@@ -128,7 +135,12 @@ LEETCODE_USERNAME=your-username npm run dev
 
 This starts a plain Node server on `http://localhost:3178` that serves the demo page at `/` and adapts requests to the same handler Vercel runs in production at `/api/card` (`/api/card?type=json` for the raw data). Without `LEETCODE_USERNAME` set, `/api/card` renders the same in-card error message a misconfigured deployment would show.
 
-Other useful scripts: `npm test` (vitest), `npm run typecheck` (`tsc --noEmit`), `npm run port-themes` (regenerates `src/themes.json` from upstream).
+Other useful scripts:
+
+- `npm test` — vitest
+- `npm run typecheck` — `tsc --noEmit`
+- `npm run port-themes` — regenerates `src/themes.json` from upstream `github-readme-streak-stats`
+- `npx tsx scripts/gen-theme-docs.ts` — regenerates [`docs/themes.md`](docs/themes.md)'s preview gallery from `src/themes.json` (run this after `npm run port-themes` if the theme catalog changed)
 
 ## Attribution
 

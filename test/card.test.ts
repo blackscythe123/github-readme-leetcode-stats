@@ -110,6 +110,8 @@ function buildParams(overrides: Partial<CardParams> = {}): CardParams {
     colorOverrides: {},
     disableAnimations: false,
     shortNumbers: false,
+    topSkills: 12,
+    topLangs: 12,
     output: "svg",
     ...overrides,
   };
@@ -235,6 +237,41 @@ describe("renderCard — single-section layouts", () => {
       expect(svg).toContain("<svg");
     });
   }
+});
+
+// ---------------------------------------------------------------------------
+// top_skills / top_langs caps
+// ---------------------------------------------------------------------------
+
+describe("renderCard — topSkills cap", () => {
+  it("renders exactly 3 skill chips and counts +N more against the original item count", () => {
+    // BASE_DATA has 7 skills; topSkills=3 caps the chip loop to the first 3.
+    const svg = renderCard(BASE_DATA, buildParams({ topSkills: 3 }), DEFAULT_THEME);
+    assertWellFormed(svg);
+    expect(svg).toContain("Array ×37");
+    expect(svg).toContain("Hash Table ×13");
+    expect(svg).toContain("Sorting ×10");
+    expect(svg).not.toContain("Two Pointers ×8");
+    expect(svg).not.toContain("String ×7");
+    expect(svg).not.toContain("Binary Search ×5");
+    expect(svg).not.toContain("Math ×5");
+    // 7 total - 3 shown = 4 remaining, counted against the ORIGINAL items.length, not the cap.
+    expect(svg).toContain("+4 more");
+  });
+
+  it("omits the '+N more' text when the cap is not below the geometric ceiling and covers all items", () => {
+    const twoSkills = buildData({
+      skills: [
+        { name: "Array", count: 37 },
+        { name: "Hash Table", count: 13 },
+      ],
+    });
+    const svg = renderCard(twoSkills, buildParams({ topSkills: 12 }), DEFAULT_THEME);
+    assertWellFormed(svg);
+    expect(svg).toContain("Array ×37");
+    expect(svg).toContain("Hash Table ×13");
+    expect(svg).not.toContain("more");
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -82,6 +82,21 @@ function parseBorderRadius(raw: string | undefined): number {
 }
 
 // ---------------------------------------------------------------------------
+// top_skills / top_langs
+// ---------------------------------------------------------------------------
+
+const DEFAULT_TOP_N = 12;
+const MIN_TOP_N = 1;
+const MAX_TOP_N = 12;
+
+function parseTopN(raw: string | undefined): number {
+  if (raw === undefined) return DEFAULT_TOP_N;
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n)) return DEFAULT_TOP_N;
+  return Math.min(MAX_TOP_N, Math.max(MIN_TOP_N, n));
+}
+
+// ---------------------------------------------------------------------------
 // color overrides
 // ---------------------------------------------------------------------------
 
@@ -179,6 +194,9 @@ export function parseParams(query: Query): CardParams {
 
   const borderRadius = parseBorderRadius(first(query.border_radius));
 
+  const topSkills = parseTopN(first(query.top_skills));
+  const topLangs = parseTopN(first(query.top_langs));
+
   const colorOverrides = parseColorOverrides(query);
   // transparent=true always wins, regardless of an explicit (valid or invalid) background=.
   if (transparent) {
@@ -196,6 +214,8 @@ export function parseParams(query: Query): CardParams {
     colorOverrides,
     disableAnimations,
     shortNumbers,
+    topSkills,
+    topLangs,
     output,
   };
 }

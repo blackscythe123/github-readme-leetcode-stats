@@ -12,6 +12,8 @@ interface RenderOpts {
   uid: string;
   today: number;
   short: boolean;
+  topSkills: number;
+  topLangs: number;
 }
 
 function text(
@@ -42,13 +44,16 @@ function renderChips(
   header: string,
   kind: "sk" | "lg",
   opts: RenderOpts,
+  cap: number,
 ): string {
+  const totalItems = items.length;
+  const cappedItems = items.slice(0, cap);
   let cx = x;
   let cy = y + 22;
   let shown = 0;
   const chips: string[] = [];
 
-  for (const item of items) {
+  for (const item of cappedItems) {
     const label = `${item.name} ×${item.count}`;
     const cw = label.length * 6.2 + 18;
     if (cx + cw > x + w) {
@@ -75,14 +80,14 @@ function renderChips(
 
   let html = text(x, y + 10, 12, 700, theme.sideLabels, header, "start", fadeIn(opts, kind, 0.8));
   html += chips.join("");
-  if (shown < items.length) {
+  if (shown < totalItems) {
     html += text(
       cx + 4,
       cy + 14,
       10.5,
       400,
       theme.dates,
-      `+${items.length - shown} more`,
+      `+${totalItems - shown} more`,
       "start",
       fadeIn(opts, kind, 0.85 + shown * 0.05),
     );
@@ -103,7 +108,7 @@ export function renderSkills(
   w: number,
   opts: RenderOpts,
 ): string {
-  return renderChips(theme, data.skills, x, y, w, "Skills", "sk", opts);
+  return renderChips(theme, data.skills, x, y, w, "Skills", "sk", opts, opts.topSkills);
 }
 
 export function renderLanguages(
@@ -114,5 +119,5 @@ export function renderLanguages(
   w: number,
   opts: RenderOpts,
 ): string {
-  return renderChips(theme, data.languages, x, y, w, "Languages", "lg", opts);
+  return renderChips(theme, data.languages, x, y, w, "Languages", "lg", opts, opts.topLangs);
 }

@@ -680,6 +680,11 @@ const state = {
   borderRadius: 4.5,
   disableAnimations: false,
   shortNumbers: false,
+  topSkills: 12,
+  topLangs: 12,
+  // Only keys the user has explicitly enabled via the "Custom colors" checkboxes live here.
+  // Values are "#rrggbb" (input[type=color] always yields that shape).
+  colorOverrides: {},
   data: null,
   mode: "loading",
 };
