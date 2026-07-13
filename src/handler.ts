@@ -6,8 +6,10 @@ import { fetchRawData } from "./leetcode";
 import { computeStreaks, epochDayNow } from "./stats";
 import { generateOutput } from "./output";
 
+// Single-user instance — one origin fetch per 30 min costs nothing, so keep the shared
+// (camo) cache aligned with the browser cache instead of holding stats stale for 6h.
 const SUCCESS_CACHE_CONTROL =
-  "public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400";
+  "public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400";
 const ERROR_CACHE_CONTROL = "public, s-maxage=300";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

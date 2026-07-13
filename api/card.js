@@ -30,6 +30,7 @@ var ALL_SECTIONS = [
   "solved",
   "streak",
   "skills",
+  "languages",
   "heatmap"
 ];
 var RenderableError = class extends Error {
@@ -1317,6 +1318,19 @@ var themes_default = {
     sideLabels: "#151515",
     dates: "#464646",
     excludeDaysLabel: "#464646"
+  },
+  "default-dark": {
+    background: "#0D1117",
+    border: "#E4E2E2",
+    stroke: "#E4E2E2",
+    ring: "#FB8C00",
+    fire: "#FB8C00",
+    currStreakNum: "#FEFEFE",
+    sideNums: "#FEFEFE",
+    currStreakLabel: "#FB8C00",
+    sideLabels: "#FEFEFE",
+    dates: "#9E9E9E",
+    excludeDaysLabel: "#9E9E9E"
   },
   "deuteranopia-friendly-theme": {
     background: "#000000",
@@ -2945,34 +2959,7 @@ function vline(x, y1, y2) {
 function hline(y, x1, x2) {
   return { kind: "h", a: y, b1: x1, b2: x2 };
 }
-function middleRowLayout(sections) {
-  return {
-    width: 840,
-    height: 198,
-    placements: [
-      { section: sections[0], x: 24, y: 22, w: 792 },
-      { section: sections[1], x: 24, y: 100, w: 792 }
-    ],
-    dividers: []
-  };
-}
-function fullDashboard(middle) {
-  return {
-    width: 840,
-    height: 440,
-    placements: [
-      { section: "profile", x: 24, y: 22, w: 306 },
-      { section: "solved", x: 24, y: 78, w: 306 },
-      { section: "streak", x: 340, y: 30, w: 470 },
-      { section: middle, x: 350, y: 162, w: 460 },
-      { section: "heatmap", x: 24, y: 256, w: 792 }
-    ],
-    dividers: [vline(330, 24, 196), hline(148, 350, 816), hline(240, 24, 816)]
-  };
-}
 var EXPLICIT = {
-  "profile,solved,streak,skills,heatmap": fullDashboard("skills"),
-  "profile,solved,streak,languages,heatmap": fullDashboard("languages"),
   "profile,solved": {
     width: 340,
     height: 200,
@@ -3027,8 +3014,7 @@ var EXPLICIT = {
     height: 120,
     placements: [{ section: "languages", x: 24, y: 22, w: 792 }],
     dividers: []
-  },
-  "skills,languages": middleRowLayout(["skills", "languages"])
+  }
 };
 var MARGIN = 24;
 var CARD_W = 840;
@@ -3041,9 +3027,14 @@ var SOLVED_ALONE_H = 116;
 var SOLVED_AFTER_PROFILE_H = 118;
 var STREAK_CONTENT_H = 98;
 var ROW_GAP = 24;
-var SKILLS_ROW_H = 78;
+var CHIPS_1ROW_H = 78;
+var CHIPS_2ROW_H = 104;
 var HEATMAP_H = 180;
-function genericLayout(secs) {
+function chipBandHeight(sec, hints) {
+  const rows = sec === "skills" ? hints.skillsRows : hints.languagesRows;
+  return rows === 2 ? CHIPS_2ROW_H : CHIPS_1ROW_H;
+}
+function genericLayout(secs, hints) {
   const leftSecs = secs.filter((s) => s === "profile" || s === "solved");
   const hasStreak = secs.includes("streak");
   const middleSecs = secs.filter((s) => s === "skills" || s === "languages");
@@ -3079,7 +3070,7 @@ function genericLayout(secs) {
   for (const sec of middleSecs) {
     if (lastKind !== "none") dividers.push(hline(y - 12, MARGIN, CARD_W - MARGIN));
     placements.push({ section: sec, x: MARGIN, y, w: CARD_W - MARGIN * 2 });
-    y += SKILLS_ROW_H;
+    y += chipBandHeight(sec, hints);
     lastKind = "middle";
   }
   if (hasHeatmap) {
@@ -3091,7 +3082,7 @@ function genericLayout(secs) {
   const height = lastKind === "heatmap" ? y : y + 20;
   return { width: CARD_W, height, placements, dividers };
 }
-function layout(sections) {
+function layout(sections, hints = {}) {
   const secs = sortCanonical(sections);
   if (secs.length === 0) {
     return { width: 340, height: 80, placements: [], dividers: [] };
@@ -3099,7 +3090,7 @@ function layout(sections) {
   const key = secs.join(",");
   const explicit = EXPLICIT[key];
   if (explicit) return explicit;
-  return genericLayout(secs);
+  return genericLayout(secs, hints);
 }
 
 // src/logo.ts
@@ -3276,12 +3267,23 @@ function text4(x, y, size, weight, fill, s, anchor = "middle", extra = "") {
 function fadeIn4(opts, kind, delay) {
   return opts.animate ? ` style="opacity:0;animation:${kind}_fade_${opts.uid} .4s ease-out ${Math.min(delay, 1.4).toFixed(2)}s both"` : "";
 }
+function chipRowCount(items, cap, w) {
+  let cx = 0;
+  for (const item of items.slice(0, cap)) {
+    const cw = `${item.name} \xD7${item.count}`.length * 6.2 + 18;
+    if (cx + cw > w) return 2;
+    cx += cw + 8;
+  }
+  return 1;
+}
 function renderChips(theme, items, x, y, w, header, kind, opts, cap) {
   const totalItems = items.length;
   const cappedItems = items.slice(0, cap);
   let cx = x;
   let cy = y + 22;
   let shown = 0;
+  let moreX = x;
+  let moreY = y + 22;
   const chips = [];
   for (const item of cappedItems) {
     const label = `${item.name} \xD7${item.count}`;
@@ -3300,14 +3302,16 @@ function renderChips(theme, items, x, y, w, header, kind, opts, cap) {
       </g>`
     );
     cx += cw + 8;
+    moreX = cx;
+    moreY = cy;
     shown++;
   }
   let html = text4(x, y + 10, 12, 700, theme.sideLabels, header, "start", fadeIn4(opts, kind, 0.8));
   html += chips.join("");
   if (shown < totalItems) {
     html += text4(
-      cx + 4,
-      cy + 14,
+      moreX + 4,
+      moreY + 14,
       10.5,
       400,
       theme.dates,
@@ -3405,6 +3409,7 @@ function render4(theme, data, x, y, w, opts) {
 }
 
 // src/card.ts
+var GENERIC_CHIPS_W = 792;
 var RENDERERS = {
   profile: render,
   solved: render2,
@@ -3440,7 +3445,10 @@ function buildBackground(background, uid) {
   return { defs: "", fillAttr: fillAttrs(safeBackground, "fill") };
 }
 function renderCard(data, params, theme) {
-  const cardLayout = layout(params.sections);
+  const cardLayout = layout(params.sections, {
+    skillsRows: chipRowCount(data.skills, params.topSkills, GENERIC_CHIPS_W),
+    languagesRows: chipRowCount(data.languages, params.topLangs, GENERIC_CHIPS_W)
+  });
   const { width, height, placements, dividers } = cardLayout;
   const uid = nextUid();
   const animate = !params.disableAnimations;
@@ -3549,7 +3557,7 @@ function generateOutput(data, params) {
 }
 
 // src/handler.ts
-var SUCCESS_CACHE_CONTROL = "public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400";
+var SUCCESS_CACHE_CONTROL = "public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400";
 var ERROR_CACHE_CONTROL = "public, s-maxage=300";
 async function handler(req, res) {
   const params = parseParams(
