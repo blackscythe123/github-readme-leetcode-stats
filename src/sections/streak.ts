@@ -59,7 +59,7 @@ export function render(
   const glow = opts.animate
     ? `<filter id="glow_ring_${opts.uid}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3"/></filter>
       <g filter="url(#glow_ring_${opts.uid})" opacity="0.5" style="animation:st_glow_${opts.uid} 2.5s ease-in-out infinite alternate">
-        <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="4"/>
+        <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"/>
         <path d="${FIRE_PATH}" transform="translate(${col1}, ${cy - 36}) scale(0.62)" ${fillAttrs(theme.fire, "fill")}/>
       </g>`
     : "";
@@ -77,7 +77,7 @@ export function render(
     ${text(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn(opts, 0.5))}
     <mask id="rm_${opts.uid}"><rect x="${x}" y="${y - 20}" width="${w}" height="120" fill="white"/><ellipse cx="${col1}" cy="${cy - 28}" rx="9" ry="12" fill="black"/></mask>
     <g mask="url(#rm_${opts.uid})">
-      <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="4"${fadeIn(opts, 0.4)}/>
+      <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${fadeIn(opts, 0.4)}/>
     </g>
     ${glow}
     <g transform="translate(${col1}, ${cy - 36}) scale(0.62)"${fadeIn(opts, 0.6)}>
