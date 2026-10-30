@@ -3942,8 +3942,8 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
   const n = list.length;
   const p = 100 / n;
   const hold = p * 0.82;
-  const slot = Math.floor(Date.now() / (30 * 60 * 1e3));
-  const startIndex = slot % n;
+  const slot = Math.floor(Date.now() / (10 * 60 * 1e3));
+  const startIndex = (slot * 7 + 11) % n;
   const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
   let fillKfs = "";
   let strokeKfs = "";
@@ -3967,8 +3967,8 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
 ${fillKfs}  }
   @keyframes ${animName}_stroke {
 ${strokeKfs}  }
-  .dyn-fill { animation: ${animName}_fill ${totalDuration}s infinite !important; }
-  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s infinite !important; }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
 `;
 }
 
@@ -4125,7 +4125,7 @@ function generateOutput(data, params) {
 }
 
 // src/handler.ts
-var SUCCESS_CACHE_CONTROL = "public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400";
+var SUCCESS_CACHE_CONTROL = "public, max-age=60, s-maxage=120, stale-while-revalidate=86400";
 var ERROR_CACHE_CONTROL = "public, s-maxage=300";
 async function handler(req, res) {
   const params = parseParams(

@@ -17,9 +17,9 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
   const p = 100 / n;
   const hold = p * 0.82;
 
-  // Shift starting palette every 30 minutes in synchronized lockstep
-  const slot = Math.floor(Date.now() / (30 * 60 * 1000));
-  const startIndex = slot % n;
+  // Jump to a pseudo-random palette every 10 minutes in synchronized coprime lockstep
+  const slot = Math.floor(Date.now() / (10 * 60 * 1000));
+  const startIndex = (slot * 7 + 11) % n;
   const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
 
   let fillKfs = "";
@@ -45,7 +45,7 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
 ${fillKfs}  }
   @keyframes ${animName}_stroke {
 ${strokeKfs}  }
-  .dyn-fill { animation: ${animName}_fill ${totalDuration}s infinite !important; }
-  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s infinite !important; }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
 `;
 }

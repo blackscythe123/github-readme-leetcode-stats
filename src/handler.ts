@@ -7,7 +7,7 @@ import { computeStreaks, epochDayNow } from "./stats";
 import { generateOutput } from "./output";
 
 const SUCCESS_CACHE_CONTROL =
-  "public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400";
+  "public, max-age=60, s-maxage=120, stale-while-revalidate=86400";
 const ERROR_CACHE_CONTROL = "public, s-maxage=300";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
