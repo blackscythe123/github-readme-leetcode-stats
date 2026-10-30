@@ -16,6 +16,7 @@ import { render as renderSolved } from "./sections/solved";
 import { render as renderStreak } from "./sections/streak";
 import { renderSkills, renderLanguages, chipRowCount } from "./sections/skills";
 import { render as renderHeatmap } from "./sections/heatmap";
+import { generateKeyframesCSS } from "./dynamic-keyframes";
 
 /** Middle-band width used by the generic layout — hints only matter there. */
 const GENERIC_CHIPS_W = 792;
@@ -27,6 +28,7 @@ interface SectionOpts {
   short: boolean;
   topSkills: number;
   topLangs: number;
+  isDynamic?: boolean;
 }
 
 type SectionRenderer = (
@@ -98,6 +100,9 @@ export function renderCard(data: CardData, params: CardParams, theme: ThemeColor
 
   const { defs: gradientDefs, fillAttr: bgFill } = buildBackground(theme.background, uid);
 
+  const isDynamic = (params.theme || "").toLowerCase().startsWith("dynamic");
+  const isLight = (params.theme || "").toLowerCase().includes("light");
+
   const opts: SectionOpts = {
     animate,
     uid,
@@ -105,6 +110,7 @@ export function renderCard(data: CardData, params: CardParams, theme: ThemeColor
     short: params.shortNumbers,
     topSkills: params.topSkills,
     topLangs: params.topLangs,
+    isDynamic,
   };
 
   const sectionsMarkup = placements
@@ -114,14 +120,15 @@ export function renderCard(data: CardData, params: CardParams, theme: ThemeColor
   const dividerMarkup = dividers
     .map((d) =>
       d.kind === "v"
-        ? `<line x1="${d.a}" y1="${d.b1}" x2="${d.a}" y2="${d.b2}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}/>`
-        : `<line x1="${d.b1}" y1="${d.a}" x2="${d.b2}" y2="${d.a}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}/>`,
+        ? `<line x1="${d.a}" y1="${d.b1}" x2="${d.a}" y2="${d.b2}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}${isDynamic ? ' class="dyn-stroke"' : ""}/>`
+        : `<line x1="${d.b1}" y1="${d.a}" x2="${d.b2}" y2="${d.a}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}${isDynamic ? ' class="dyn-stroke"' : ""}/>`,
     )
     .join("\n");
 
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation: isolate">
   <defs>
     ${gradientDefs}
+    ${isDynamic ? `<style>${generateKeyframesCSS(isLight, 150)}</style>` : ""}
     <clipPath id="clip_${uid}"><rect width="${width}" height="${height}" rx="${radius}"/></clipPath>
   </defs>
   <g clip-path="url(#clip_${uid})">

@@ -1,0 +1,46 @@
+import palettes from "./palettes.json";
+
+export interface Palette {
+  id: number;
+  name: string;
+  dark_text: string;
+  light_text: string;
+  dark_wave_start: string;
+  dark_wave_mid: string;
+  light_wave_start: string;
+  light_wave_mid: string;
+}
+
+export function generateKeyframesCSS(isLight = false, totalDuration = 150): string {
+  const list = palettes as unknown as Palette[];
+  const n = list.length;
+  const p = 100 / n;
+  const hold = p * 0.82;
+
+  let fillKfs = "";
+  let strokeKfs = "";
+
+  list.forEach((pal, i) => {
+    const p1 = (i * p).toFixed(2);
+    const p2 = (i * p + hold).toFixed(2);
+    const textCol = isLight ? pal.light_text : pal.dark_text;
+
+    fillKfs += `    ${p1}%, ${p2}% { fill: #${textCol}; }\n`;
+    strokeKfs += `    ${p1}%, ${p2}% { stroke: #${textCol}; }\n`;
+  });
+
+  const firstText = isLight ? list[0].light_text : list[0].dark_text;
+  fillKfs += `    100% { fill: #${firstText}; }\n`;
+  strokeKfs += `    100% { stroke: #${firstText}; }\n`;
+
+  const animName = isLight ? "dyn_light" : "dyn_dark";
+
+  return `
+  @keyframes ${animName}_fill {
+${fillKfs}  }
+  @keyframes ${animName}_stroke {
+${strokeKfs}  }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s infinite !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s infinite !important; }
+`;
+}

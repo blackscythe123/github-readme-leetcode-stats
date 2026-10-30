@@ -19,6 +19,7 @@ interface RenderOpts {
   uid: string;
   today: number;
   short: boolean;
+  isDynamic?: boolean;
 }
 
 function text(
@@ -74,7 +75,7 @@ export function render(
 
   return `${style}
     ${text(col0, cy + 8, 24, 700, theme.sideNums, formatNumber(data.totalSubmissions, opts.short), "middle", fadeIn(opts, 0.4))}
-    ${text(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn(opts, 0.5))}
+    ${text(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn(opts, 0.5) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}
     <mask id="rm_${opts.uid}"><rect x="${x}" y="${y - 20}" width="${w}" height="120" fill="white"/><ellipse cx="${col1}" cy="${cy - 28}" rx="9" ry="12" fill="black"/></mask>
     <g mask="url(#rm_${opts.uid})">
       <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${fadeIn(opts, 0.4)}/>
@@ -86,5 +87,5 @@ export function render(
     ${text(col1, cy + 8, 24, 700, theme.currStreakNum, formatNumber(data.currentStreak, opts.short), "middle", popStyle)}
     ${text(col1, cy + 46, 11, 700, theme.currStreakLabel, "Current Streak", "middle", fadeIn(opts, 0.7))}
     ${text(col2, cy + 8, 24, 700, theme.sideNums, formatNumber(data.highestStreak, opts.short), "middle", fadeIn(opts, 0.45))}
-    ${text(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn(opts, 0.55))}`;
+    ${text(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn(opts, 0.55) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}`;
 }

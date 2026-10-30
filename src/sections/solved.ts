@@ -19,6 +19,7 @@ interface RenderOpts {
   uid: string;
   today: number;
   short: boolean;
+  isDynamic?: boolean;
 }
 
 function text(
@@ -73,7 +74,7 @@ export function render(
       ? ` style="transform-origin:${barX}px ${(barY + 3.5).toFixed(1)}px;animation:sv_bar_${opts.uid} .6s ease-out ${(0.6 + i * 0.12).toFixed(2)}s both"`
       : "";
     return `
-      ${text(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn(opts, 0.55 + i * 0.05))}
+      ${text(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn(opts, 0.55 + i * 0.05) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}
       <text x="${x + 346}" y="${ry + 9}" text-anchor="end" font-family="${FONT}" font-size="11px"${fadeIn(opts, 0.55 + i * 0.05)}>
         <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
       </text>
@@ -90,8 +91,8 @@ export function render(
     : "";
 
   return `${style}
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${ringStyle}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${ringStyle}/>
     ${text(cx, cy - 2, 22, 700, theme.sideNums, formatNumber(data.solved.total, opts.short), "middle", fadeIn(opts, 0.4))}
     ${text(cx, cy + 14, 9, 400, theme.dates, "Solved", "middle", fadeIn(opts, 0.45))}
     ${rows}`;

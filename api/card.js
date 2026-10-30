@@ -3681,7 +3681,7 @@ function render(theme, data, x, y, w, opts) {
   const username = data.username || "?";
   const initial = username.slice(0, 1).toUpperCase();
   const avatar = data.avatarDataUri ? `<clipPath id="av_${opts.uid}"><circle cx="${cx}" cy="${cy}" r="16"/></clipPath>
-      <circle cx="${cx}" cy="${cy}" r="17" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="1.5"${fadeIn(opts, 0.5)}/>
+      <circle cx="${cx}" cy="${cy}" r="17" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="1.5"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${fadeIn(opts, 0.5)}/>
       <image href="${escapeXml(data.avatarDataUri)}" x="${cx - 16}" y="${cy - 16}" width="32" height="32" clip-path="url(#av_${opts.uid})"${fadeIn(opts, 0.55)}/>` : `<circle cx="${cx}" cy="${cy}" r="16" ${fillAttrs(theme.ring, "fill", 0.2)}${fadeIn(opts, 0.5)}/>
       ${text(cx, cy + 5, 14, 700, theme.sideNums, initial)}`;
   const style = opts.animate ? `<style>@media (prefers-reduced-motion: no-preference){@keyframes pf_fade_${opts.uid}{from{opacity:0}to{opacity:1}}}</style>` : "";
@@ -3726,7 +3726,7 @@ function render2(theme, data, x, y, _w, opts) {
     const barY = ry + 2;
     const barStyle = opts.animate ? ` style="transform-origin:${barX}px ${(barY + 3.5).toFixed(1)}px;animation:sv_bar_${opts.uid} .6s ease-out ${(0.6 + i * 0.12).toFixed(2)}s both"` : "";
     return `
-      ${text2(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn2(opts, 0.55 + i * 0.05))}
+      ${text2(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn2(opts, 0.55 + i * 0.05) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}
       <text x="${x + 346}" y="${ry + 9}" text-anchor="end" font-family="${FONT2}" font-size="11px"${fadeIn2(opts, 0.55 + i * 0.05)}>
         <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
       </text>
@@ -3739,8 +3739,8 @@ function render2(theme, data, x, y, _w, opts) {
         @keyframes sv_bar_${opts.uid}{from{transform:scaleX(0)}to{transform:scaleX(1)}}
       }</style>` : "";
   return `${style}
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${ringStyle}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${ringStyle}/>
     ${text2(cx, cy - 2, 22, 700, theme.sideNums, formatNumber(data.solved.total, opts.short), "middle", fadeIn2(opts, 0.4))}
     ${text2(cx, cy + 14, 9, 400, theme.dates, "Solved", "middle", fadeIn2(opts, 0.45))}
     ${rows}`;
@@ -3772,7 +3772,7 @@ function render3(theme, data, x, y, w, opts) {
       }</style>` : "";
   return `${style}
     ${text3(col0, cy + 8, 24, 700, theme.sideNums, formatNumber(data.totalSubmissions, opts.short), "middle", fadeIn3(opts, 0.4))}
-    ${text3(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn3(opts, 0.5))}
+    ${text3(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn3(opts, 0.5) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}
     <mask id="rm_${opts.uid}"><rect x="${x}" y="${y - 20}" width="${w}" height="120" fill="white"/><ellipse cx="${col1}" cy="${cy - 28}" rx="9" ry="12" fill="black"/></mask>
     <g mask="url(#rm_${opts.uid})">
       <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${fadeIn3(opts, 0.4)}/>
@@ -3784,7 +3784,7 @@ function render3(theme, data, x, y, w, opts) {
     ${text3(col1, cy + 8, 24, 700, theme.currStreakNum, formatNumber(data.currentStreak, opts.short), "middle", popStyle)}
     ${text3(col1, cy + 46, 11, 700, theme.currStreakLabel, "Current Streak", "middle", fadeIn3(opts, 0.7))}
     ${text3(col2, cy + 8, 24, 700, theme.sideNums, formatNumber(data.highestStreak, opts.short), "middle", fadeIn3(opts, 0.45))}
-    ${text3(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn3(opts, 0.55))}`;
+    ${text3(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn3(opts, 0.55) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}`;
 }
 
 // src/sections/skills.ts
@@ -3936,6 +3936,39 @@ function render4(theme, data, x, y, w, opts) {
     ${text5(x + w - 30, y + 145, 9, 400, theme.dates, "More", "start", fadeIn5(opts, 1.3))}`;
 }
 
+// src/dynamic-keyframes.ts
+function generateKeyframesCSS(isLight = false, totalDuration = 150) {
+  const list = palettes_default;
+  const n = list.length;
+  const p = 100 / n;
+  const hold = p * 0.82;
+  let fillKfs = "";
+  let strokeKfs = "";
+  list.forEach((pal, i) => {
+    const p1 = (i * p).toFixed(2);
+    const p2 = (i * p + hold).toFixed(2);
+    const textCol = isLight ? pal.light_text : pal.dark_text;
+    fillKfs += `    ${p1}%, ${p2}% { fill: #${textCol}; }
+`;
+    strokeKfs += `    ${p1}%, ${p2}% { stroke: #${textCol}; }
+`;
+  });
+  const firstText = isLight ? list[0].light_text : list[0].dark_text;
+  fillKfs += `    100% { fill: #${firstText}; }
+`;
+  strokeKfs += `    100% { stroke: #${firstText}; }
+`;
+  const animName = isLight ? "dyn_light" : "dyn_dark";
+  return `
+  @keyframes ${animName}_fill {
+${fillKfs}  }
+  @keyframes ${animName}_stroke {
+${strokeKfs}  }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s infinite !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s infinite !important; }
+`;
+}
+
 // src/card.ts
 var GENERIC_CHIPS_W = 792;
 var RENDERERS = {
@@ -3983,21 +4016,25 @@ function renderCard(data, params, theme) {
   const today = epochDayNow();
   const radius = Math.max(0, Math.min(params.borderRadius, width / 2, height / 2));
   const { defs: gradientDefs, fillAttr: bgFill } = buildBackground(theme.background, uid);
+  const isDynamic = (params.theme || "").toLowerCase().startsWith("dynamic");
+  const isLight = (params.theme || "").toLowerCase().includes("light");
   const opts = {
     animate,
     uid,
     today,
     short: params.shortNumbers,
     topSkills: params.topSkills,
-    topLangs: params.topLangs
+    topLangs: params.topLangs,
+    isDynamic
   };
   const sectionsMarkup = placements.map((p) => RENDERERS[p.section](theme, data, p.x, p.y, p.w, opts)).join("\n");
   const dividerMarkup = dividers.map(
-    (d) => d.kind === "v" ? `<line x1="${d.a}" y1="${d.b1}" x2="${d.a}" y2="${d.b2}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}/>` : `<line x1="${d.b1}" y1="${d.a}" x2="${d.b2}" y2="${d.a}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}/>`
+    (d) => d.kind === "v" ? `<line x1="${d.a}" y1="${d.b1}" x2="${d.a}" y2="${d.b2}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}${isDynamic ? ' class="dyn-stroke"' : ""}/>` : `<line x1="${d.b1}" y1="${d.a}" x2="${d.b2}" y2="${d.a}" stroke-width="1" ${fillAttrs(theme.stroke, "stroke", 0.6)}${isDynamic ? ' class="dyn-stroke"' : ""}/>`
   ).join("\n");
   return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation: isolate">
   <defs>
     ${gradientDefs}
+    ${isDynamic ? `<style>${generateKeyframesCSS(isLight, 150)}</style>` : ""}
     <clipPath id="clip_${uid}"><rect width="${width}" height="${height}" rx="${radius}"/></clipPath>
   </defs>
   <g clip-path="url(#clip_${uid})">

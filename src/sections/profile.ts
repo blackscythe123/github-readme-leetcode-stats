@@ -85,6 +85,7 @@ interface RenderOpts {
   uid: string;
   today: number;
   short: boolean;
+  isDynamic?: boolean;
 }
 
 function text(
@@ -123,7 +124,7 @@ export function render(
 
   const avatar = data.avatarDataUri
     ? `<clipPath id="av_${opts.uid}"><circle cx="${cx}" cy="${cy}" r="16"/></clipPath>
-      <circle cx="${cx}" cy="${cy}" r="17" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="1.5"${fadeIn(opts, 0.5)}/>
+      <circle cx="${cx}" cy="${cy}" r="17" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="1.5"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${fadeIn(opts, 0.5)}/>
       <image href="${escapeXml(data.avatarDataUri)}" x="${cx - 16}" y="${cy - 16}" width="32" height="32" clip-path="url(#av_${opts.uid})"${fadeIn(opts, 0.55)}/>`
     : `<circle cx="${cx}" cy="${cy}" r="16" ${fillAttrs(theme.ring, "fill", 0.2)}${fadeIn(opts, 0.5)}/>
       ${text(cx, cy + 5, 14, 700, theme.sideNums, initial)}`;
