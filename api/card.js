@@ -3487,24 +3487,24 @@ function hline(y, x1, x2) {
 }
 var EXPLICIT = {
   "profile,solved": {
-    width: 340,
-    height: 200,
+    width: 370,
+    height: 195,
     placements: [
-      { section: "profile", x: 24, y: 22, w: 306 },
-      { section: "solved", x: 12, y: 78, w: 316 }
+      { section: "profile", x: 20, y: 20, w: 330 },
+      { section: "solved", x: 10, y: 72, w: 350 }
     ],
     dividers: []
   },
   solved: {
-    width: 340,
+    width: 370,
     height: 140,
-    placements: [{ section: "solved", x: 12, y: 22, w: 316 }],
+    placements: [{ section: "solved", x: 10, y: 22, w: 350 }],
     dividers: []
   },
   streak: {
-    width: 500,
-    height: 128,
-    placements: [{ section: "streak", x: 15, y: 22, w: 470 }],
+    width: 370,
+    height: 195,
+    placements: [{ section: "streak", x: 10, y: 50, w: 350 }],
     dividers: []
   },
   heatmap: {
@@ -3718,16 +3718,18 @@ function render2(theme, data, x, y, _w, opts) {
   const rows = DIFFS.map((d, i) => {
     const stat = data.solved[d];
     const ry = y + 12 + i * 31;
-    const barW = 108;
+    const barW = 80;
     const tot = stat.total > 0 ? stat.total : 1;
     const bw = Math.max(2, barW * (stat.solved / tot));
     const label = d.charAt(0).toUpperCase() + d.slice(1);
-    const barX = x + 172;
+    const barX = x + 168;
     const barY = ry + 2;
     const barStyle = opts.animate ? ` style="transform-origin:${barX}px ${(barY + 3.5).toFixed(1)}px;animation:sv_bar_${opts.uid} .6s ease-out ${(0.6 + i * 0.12).toFixed(2)}s both"` : "";
     return `
-      ${text2(x + 118, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn2(opts, 0.55 + i * 0.05))}
-      ${text2(x + 288, ry + 9, 11, 400, theme.dates, `${formatNumber(stat.solved, opts.short)}/${formatNumber(stat.total, opts.short)}`, "end", fadeIn2(opts, 0.55 + i * 0.05))}
+      ${text2(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn2(opts, 0.55 + i * 0.05))}
+      <text x="${x + 345}" y="${ry + 9}" text-anchor="end" font-family="${FONT2}" font-size="11px"${fadeIn2(opts, 0.55 + i * 0.05)}>
+        <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
+      </text>
       <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}" fill-opacity="0.18"/>
       <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}"/></g>`;
   }).join("");

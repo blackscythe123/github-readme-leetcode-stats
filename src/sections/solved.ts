@@ -63,18 +63,20 @@ export function render(
   const rows = DIFFS.map((d, i) => {
     const stat = data.solved[d];
     const ry = y + 12 + i * 31;
-    const barW = 108;
+    const barW = 80;
     const tot = stat.total > 0 ? stat.total : 1;
     const bw = Math.max(2, barW * (stat.solved / tot));
     const label = d.charAt(0).toUpperCase() + d.slice(1);
-    const barX = x + 172;
+    const barX = x + 168;
     const barY = ry + 2;
     const barStyle = opts.animate
       ? ` style="transform-origin:${barX}px ${(barY + 3.5).toFixed(1)}px;animation:sv_bar_${opts.uid} .6s ease-out ${(0.6 + i * 0.12).toFixed(2)}s both"`
       : "";
     return `
-      ${text(x + 118, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn(opts, 0.55 + i * 0.05))}
-      ${text(x + 288, ry + 9, 11, 400, theme.dates, `${formatNumber(stat.solved, opts.short)}/${formatNumber(stat.total, opts.short)}`, "end", fadeIn(opts, 0.55 + i * 0.05))}
+      ${text(x + 115, ry + 9, 11, 600, theme.sideLabels, label, "start", fadeIn(opts, 0.55 + i * 0.05))}
+      <text x="${x + 345}" y="${ry + 9}" text-anchor="end" font-family="${FONT}" font-size="11px"${fadeIn(opts, 0.55 + i * 0.05)}>
+        <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
+      </text>
       <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}" fill-opacity="0.18"/>
       <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}"/></g>`;
   }).join("");

@@ -68,24 +68,24 @@ function hline(y: number, x1: number, x2: number): DividerLine {
 // row-aware heights via LayoutHints).
 const EXPLICIT: Record<string, CardLayout> = {
   "profile,solved": {
-    width: 340,
-    height: 200,
+    width: 370,
+    height: 195,
     placements: [
-      { section: "profile", x: 24, y: 22, w: 306 },
-      { section: "solved", x: 12, y: 78, w: 316 },
+      { section: "profile", x: 20, y: 20, w: 330 },
+      { section: "solved", x: 10, y: 72, w: 350 },
     ],
     dividers: [],
   },
   solved: {
-    width: 340,
+    width: 370,
     height: 140,
-    placements: [{ section: "solved", x: 12, y: 22, w: 316 }],
+    placements: [{ section: "solved", x: 10, y: 22, w: 350 }],
     dividers: [],
   },
   streak: {
-    width: 500,
-    height: 128,
-    placements: [{ section: "streak", x: 15, y: 22, w: 470 }],
+    width: 370,
+    height: 195,
+    placements: [{ section: "streak", x: 10, y: 50, w: 350 }],
     dividers: [],
   },
   heatmap: {
