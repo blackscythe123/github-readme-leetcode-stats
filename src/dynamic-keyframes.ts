@@ -17,9 +17,9 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
   const p = 100 / n;
   const hold = p * 0.82;
 
-  // Jump to a pseudo-random palette every 10 minutes in synchronized coprime lockstep
-  const slot = Math.floor(Date.now() / (10 * 60 * 1000));
-  const startIndex = (slot * 7 + 11) % n;
+  // Daily synchronized coprime lockstep (never desyncs mid-day across Camo caches)
+  const slot = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+  const startIndex = (slot * 7 + 6) % n;
   const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
 
   let fillKfs = "";
