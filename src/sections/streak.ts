@@ -36,7 +36,7 @@ function text(
 }
 
 function fadeIn(opts: RenderOpts, delay: number): string {
-  return opts.animate
+  return opts.animate && !opts.isDynamic
     ? ` style="opacity:0;animation:st_fade_${opts.uid} .5s ease-out ${delay}s both"`
     : "";
 }

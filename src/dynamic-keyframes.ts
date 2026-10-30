@@ -17,10 +17,15 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
   const p = 100 / n;
   const hold = p * 0.82;
 
+  // Shift starting palette every 30 minutes in synchronized lockstep
+  const slot = Math.floor(Date.now() / (30 * 60 * 1000));
+  const startIndex = slot % n;
+  const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
+
   let fillKfs = "";
   let strokeKfs = "";
 
-  list.forEach((pal, i) => {
+  activePalettes.forEach((pal, i) => {
     const p1 = (i * p).toFixed(2);
     const p2 = (i * p + hold).toFixed(2);
     const textCol = isLight ? pal.light_text : pal.dark_text;
@@ -29,7 +34,7 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
     strokeKfs += `    ${p1}%, ${p2}% { stroke: #${textCol}; }\n`;
   });
 
-  const firstText = isLight ? list[0].light_text : list[0].dark_text;
+  const firstText = isLight ? activePalettes[0].light_text : activePalettes[0].dark_text;
   fillKfs += `    100% { fill: #${firstText}; }\n`;
   strokeKfs += `    100% { stroke: #${firstText}; }\n`;
 

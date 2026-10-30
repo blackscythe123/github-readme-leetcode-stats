@@ -3673,7 +3673,7 @@ function text(x, y, size, weight, fill, s, anchor = "middle", extra = "") {
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" ${fillAttrs(fill, "fill")} font-family="${FONT}" font-weight="${weight}" font-size="${size}px" ${extra}>${escapeXml(String(s))}</text>`;
 }
 function fadeIn(opts, delay) {
-  return opts.animate ? ` style="opacity:0;animation:pf_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
+  return opts.animate && !opts.isDynamic ? ` style="opacity:0;animation:pf_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
 }
 function render(theme, data, x, y, w, opts) {
   const cx = x + Math.max(34, w) - 34;
@@ -3704,7 +3704,7 @@ function text2(x, y, size, weight, fill, s, anchor = "middle", extra = "") {
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" ${fillAttrs(fill, "fill")} font-family="${FONT2}" font-weight="${weight}" font-size="${size}px" ${extra}>${escapeXml(String(s))}</text>`;
 }
 function fadeIn2(opts, delay) {
-  return opts.animate ? ` style="opacity:0;animation:sv_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
+  return opts.animate && !opts.isDynamic ? ` style="opacity:0;animation:sv_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
 }
 function render2(theme, data, x, y, _w, opts) {
   const cx = x + 52;
@@ -3753,7 +3753,7 @@ function text3(x, y, size, weight, fill, s, anchor = "middle", extra = "") {
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" ${fillAttrs(fill, "fill")} font-family="${FONT3}" font-weight="${weight}" font-size="${size}px" ${extra}>${escapeXml(String(s))}</text>`;
 }
 function fadeIn3(opts, delay) {
-  return opts.animate ? ` style="opacity:0;animation:st_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
+  return opts.animate && !opts.isDynamic ? ` style="opacity:0;animation:st_fade_${opts.uid} .5s ease-out ${delay}s both"` : "";
 }
 function render3(theme, data, x, y, w, opts) {
   const cols = [w / 6, w / 2, 5 * w / 6].map((v) => x + v);
@@ -3942,9 +3942,12 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
   const n = list.length;
   const p = 100 / n;
   const hold = p * 0.82;
+  const slot = Math.floor(Date.now() / (30 * 60 * 1e3));
+  const startIndex = slot % n;
+  const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
   let fillKfs = "";
   let strokeKfs = "";
-  list.forEach((pal, i) => {
+  activePalettes.forEach((pal, i) => {
     const p1 = (i * p).toFixed(2);
     const p2 = (i * p + hold).toFixed(2);
     const textCol = isLight ? pal.light_text : pal.dark_text;
@@ -3953,7 +3956,7 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
     strokeKfs += `    ${p1}%, ${p2}% { stroke: #${textCol}; }
 `;
   });
-  const firstText = isLight ? list[0].light_text : list[0].dark_text;
+  const firstText = isLight ? activePalettes[0].light_text : activePalettes[0].dark_text;
   fillKfs += `    100% { fill: #${firstText}; }
 `;
   strokeKfs += `    100% { stroke: #${firstText}; }
@@ -4142,10 +4145,7 @@ async function handler(req, res) {
     const { body, contentType } = generateOutput(data, params);
     const isDynamic = params.theme.startsWith("dynamic");
     res.setHeader("Content-Type", contentType);
-    res.setHeader(
-      "Cache-Control",
-      isDynamic ? "public, max-age=0, s-maxage=5, must-revalidate" : SUCCESS_CACHE_CONTROL
-    );
+    res.setHeader("Cache-Control", SUCCESS_CACHE_CONTROL);
     res.status(200).send(body);
   } catch (err) {
     const renderable = err instanceof RenderableError ? err : new RenderableError("Something went wrong rendering this card.", 500);
