@@ -31,7 +31,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { body, contentType } = generateOutput(data, params);
     const isDynamic = params.theme.startsWith("dynamic");
     res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", SUCCESS_CACHE_CONTROL);
+    res.setHeader(
+      "Cache-Control",
+      isDynamic ? "no-cache, no-store, must-revalidate" : SUCCESS_CACHE_CONTROL,
+    );
     res.status(200).send(body);
   } catch (err) {
     const renderable =
