@@ -11,8 +11,10 @@ export interface Palette {
   light_wave_mid: string;
 }
 
-export function getDynamicPalette(windowSeconds = 15): Palette {
+export function getDynamicPalette(): Palette {
   const list = palettes as unknown as Palette[];
-  const index = Math.floor(Date.now() / (windowSeconds * 1000)) % list.length;
-  return list[index];
+  const n = list.length;
+  const slot = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+  const startIndex = (slot * 7 + 6) % n;
+  return list[startIndex];
 }

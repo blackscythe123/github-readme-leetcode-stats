@@ -3405,10 +3405,12 @@ var palettes_default = [
 ];
 
 // src/dynamic-theme.ts
-function getDynamicPalette(windowSeconds = 15) {
+function getDynamicPalette() {
   const list = palettes_default;
-  const index = Math.floor(Date.now() / (windowSeconds * 1e3)) % list.length;
-  return list[index];
+  const n = list.length;
+  const slot = Math.floor(Date.now() / (24 * 60 * 60 * 1e3));
+  const startIndex = (slot * 7 + 6) % n;
+  return list[startIndex];
 }
 
 // src/theme.ts
@@ -3421,18 +3423,19 @@ function resolveTheme(name, overrides, hideBorder) {
   let base;
   if (normalized.startsWith("dynamic")) {
     const isLight = normalized.includes("light");
-    const pal = getDynamicPalette(15);
+    const pal = getDynamicPalette();
+    const dynamicCol = isLight ? "#" + pal.light_text : "#" + pal.dark_text;
     if (isLight) {
       base = {
         background: "#f6f8fa",
         border: "#d0d7de",
         stroke: "#d0d7de",
-        ring: "#" + pal.light_text,
-        fire: "#FFA500",
-        currStreakNum: "#FFA500",
-        currStreakLabel: "#FFA500",
+        ring: dynamicCol,
+        fire: dynamicCol,
+        currStreakNum: dynamicCol,
+        currStreakLabel: dynamicCol,
         sideNums: "#1f2328",
-        sideLabels: "#" + pal.light_text,
+        sideLabels: dynamicCol,
         dates: "#57606a",
         excludeDaysLabel: "#57606a"
       };
@@ -3441,12 +3444,12 @@ function resolveTheme(name, overrides, hideBorder) {
         background: "#161b22",
         border: "#30363d",
         stroke: "#30363d",
-        ring: "#" + pal.dark_text,
-        fire: "#FFA500",
-        currStreakNum: "#FFA500",
-        currStreakLabel: "#FFA500",
+        ring: dynamicCol,
+        fire: dynamicCol,
+        currStreakNum: dynamicCol,
+        currStreakLabel: dynamicCol,
         sideNums: "#ffffff",
-        sideLabels: "#" + pal.dark_text,
+        sideLabels: dynamicCol,
         dates: "#8b949e",
         excludeDaysLabel: "#8b949e"
       };
@@ -3760,10 +3763,12 @@ function render3(theme, data, x, y, w, opts) {
   const cy = y + 44;
   const [col0, col1, col2] = cols;
   const popStyle = opts.animate ? ` style="animation:st_pop_${opts.uid} .7s cubic-bezier(.34,1.56,.64,1) .9s both"` : "";
+  const dynStroke = opts.isDynamic ? ' class="dyn-stroke"' : "";
+  const dynFill = opts.isDynamic ? ' class="dyn-fill"' : "";
   const glow = opts.animate ? `<filter id="glow_ring_${opts.uid}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3"/></filter>
       <g filter="url(#glow_ring_${opts.uid})" opacity="0.5" style="animation:st_glow_${opts.uid} 2.5s ease-in-out infinite alternate">
-        <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"/>
-        <path d="${FIRE_PATH}" transform="translate(${col1}, ${cy - 36}) scale(0.62)" ${fillAttrs(theme.fire, "fill")}/>
+        <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${dynStroke}/>
+        <path d="${FIRE_PATH}" transform="translate(${col1}, ${cy - 36}) scale(0.62)" ${fillAttrs(theme.fire, "fill")}${dynFill}/>
       </g>` : "";
   const style = opts.animate ? `<style>@media (prefers-reduced-motion: no-preference){
         @keyframes st_fade_${opts.uid}{from{opacity:0}to{opacity:1}}
@@ -3772,19 +3777,19 @@ function render3(theme, data, x, y, w, opts) {
       }</style>` : "";
   return `${style}
     ${text3(col0, cy + 8, 24, 700, theme.sideNums, formatNumber(data.totalSubmissions, opts.short), "middle", fadeIn3(opts, 0.4))}
-    ${text3(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn3(opts, 0.5) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}
+    ${text3(col0, cy + 32, 11, 400, theme.sideLabels, "Total Submissions", "middle", fadeIn3(opts, 0.5) + dynFill)}
     <mask id="rm_${opts.uid}"><rect x="${x}" y="${y - 20}" width="${w}" height="120" fill="white"/><ellipse cx="${col1}" cy="${cy - 28}" rx="9" ry="12" fill="black"/></mask>
     <g mask="url(#rm_${opts.uid})">
-      <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${fadeIn3(opts, 0.4)}/>
+      <circle cx="${col1}" cy="${cy}" r="28" fill="none" ${fillAttrs(theme.fire, "stroke")} stroke-width="4"${dynStroke}${fadeIn3(opts, 0.4)}/>
     </g>
     ${glow}
     <g transform="translate(${col1}, ${cy - 36}) scale(0.62)"${fadeIn3(opts, 0.6)}>
-      <path d="${FIRE_PATH}" ${fillAttrs(theme.fire, "fill")}/>
+      <path d="${FIRE_PATH}" ${fillAttrs(theme.fire, "fill")}${dynFill}/>
     </g>
-    ${text3(col1, cy + 8, 24, 700, theme.currStreakNum, formatNumber(data.currentStreak, opts.short), "middle", popStyle)}
-    ${text3(col1, cy + 46, 11, 700, theme.currStreakLabel, "Current Streak", "middle", fadeIn3(opts, 0.7))}
+    ${text3(col1, cy + 8, 24, 700, theme.currStreakNum, formatNumber(data.currentStreak, opts.short), "middle", popStyle + dynFill)}
+    ${text3(col1, cy + 46, 11, 700, theme.currStreakLabel, "Current Streak", "middle", fadeIn3(opts, 0.7) + dynFill)}
     ${text3(col2, cy + 8, 24, 700, theme.sideNums, formatNumber(data.highestStreak, opts.short), "middle", fadeIn3(opts, 0.45))}
-    ${text3(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn3(opts, 0.55) + (opts.isDynamic ? ' class="dyn-fill"' : ""))}`;
+    ${text3(col2, cy + 32, 11, 400, theme.sideLabels, "Highest Streak", "middle", fadeIn3(opts, 0.55) + dynFill)}`;
 }
 
 // src/sections/skills.ts
@@ -3962,13 +3967,15 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
   strokeKfs += `    100% { stroke: #${firstText}; }
 `;
   const animName = isLight ? "dyn_light" : "dyn_dark";
+  const epochSec = Math.floor(Date.now() / 1e3);
+  const offsetSec = epochSec % totalDuration;
   return `
   @keyframes ${animName}_fill {
 ${fillKfs}  }
   @keyframes ${animName}_stroke {
 ${strokeKfs}  }
-  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
-  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; animation-delay: -${offsetSec}s !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; animation-delay: -${offsetSec}s !important; }
 `;
 }
 

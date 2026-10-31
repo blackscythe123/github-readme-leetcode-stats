@@ -40,12 +40,16 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
 
   const animName = isLight ? "dyn_light" : "dyn_dark";
 
+  // Wall-clock epoch offset synchronization to prevent desync on slow network/DOM loading
+  const epochSec = Math.floor(Date.now() / 1000);
+  const offsetSec = epochSec % totalDuration;
+
   return `
   @keyframes ${animName}_fill {
 ${fillKfs}  }
   @keyframes ${animName}_stroke {
 ${strokeKfs}  }
-  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
-  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
+  .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; animation-delay: -${offsetSec}s !important; }
+  .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; animation-delay: -${offsetSec}s !important; }
 `;
 }

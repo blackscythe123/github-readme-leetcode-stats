@@ -27,18 +27,19 @@ export function resolveTheme(
   let base: ThemeColors;
   if (normalized.startsWith("dynamic")) {
     const isLight = normalized.includes("light");
-    const pal = getDynamicPalette(15);
+    const pal = getDynamicPalette();
+    const dynamicCol = isLight ? "#" + pal.light_text : "#" + pal.dark_text;
     if (isLight) {
       base = {
         background: "#f6f8fa",
         border: "#d0d7de",
         stroke: "#d0d7de",
-        ring: "#" + pal.light_text,
-        fire: "#FFA500",
-        currStreakNum: "#FFA500",
-        currStreakLabel: "#FFA500",
+        ring: dynamicCol,
+        fire: dynamicCol,
+        currStreakNum: dynamicCol,
+        currStreakLabel: dynamicCol,
         sideNums: "#1f2328",
-        sideLabels: "#" + pal.light_text,
+        sideLabels: dynamicCol,
         dates: "#57606a",
         excludeDaysLabel: "#57606a",
       };
@@ -47,12 +48,12 @@ export function resolveTheme(
         background: "#161b22",
         border: "#30363d",
         stroke: "#30363d",
-        ring: "#" + pal.dark_text,
-        fire: "#FFA500",
-        currStreakNum: "#FFA500",
-        currStreakLabel: "#FFA500",
+        ring: dynamicCol,
+        fire: dynamicCol,
+        currStreakNum: dynamicCol,
+        currStreakLabel: dynamicCol,
         sideNums: "#ffffff",
-        sideLabels: "#" + pal.dark_text,
+        sideLabels: dynamicCol,
         dates: "#8b949e",
         excludeDaysLabel: "#8b949e",
       };
