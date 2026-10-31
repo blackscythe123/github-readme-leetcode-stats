@@ -17,9 +17,9 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
   const p = 100 / n;
   const hold = p * 0.82;
 
-  // Daily synchronized coprime lockstep
-  const slot = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
-  const startIndex = (slot * 7 + 6) % n;
+  // 10-minute synchronized coprime rotation
+  const bucket = Math.floor(Date.now() / (10 * 60 * 1000));
+  const startIndex = (bucket * 7 + 11) % n;
   const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
 
   let fillKfs = "";

@@ -3947,8 +3947,8 @@ function generateKeyframesCSS(isLight = false, totalDuration = 150) {
   const n = list.length;
   const p = 100 / n;
   const hold = p * 0.82;
-  const slot = Math.floor(Date.now() / (24 * 60 * 60 * 1e3));
-  const startIndex = (slot * 7 + 6) % n;
+  const bucket = Math.floor(Date.now() / (10 * 60 * 1e3));
+  const startIndex = (bucket * 7 + 11) % n;
   const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
   let fillKfs = "";
   let strokeKfs = "";
