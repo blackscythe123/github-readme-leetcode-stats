@@ -17,10 +17,8 @@ export function generateKeyframesCSS(isLight = false, totalDuration = 150): stri
   const p = 100 / n;
   const hold = p * 0.82;
 
-  // 10-minute synchronized coprime rotation
-  const bucket = Math.floor(Date.now() / (10 * 60 * 1000));
-  const startIndex = (bucket * 7 + 11) % n;
-  const activePalettes = [...list.slice(startIndex), ...list.slice(0, startIndex)];
+  // Fixed master synchronized sequence (Camo-immune lockstep)
+  const activePalettes = list;
 
   let fillKfs = "";
   let strokeKfs = "";
