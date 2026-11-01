@@ -3702,6 +3702,13 @@ var DIFF_COLORS = {
   medium: "#FFC01E",
   hard: "#FF375F"
 };
+var DIFF_COLORS_LIGHT = {
+  easy: "#009C8A",
+  medium: "#B48200",
+  hard: "#FF375F"
+};
+var LIGHT_RING_TRACK_OPACITY = 0.3;
+var LIGHT_BAR_TRACK_OPACITY = 0.4;
 var DIFFS = ["easy", "medium", "hard"];
 function text2(x, y, size, weight, fill, s, anchor = "middle", extra = "") {
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" ${fillAttrs(fill, "fill")} font-family="${FONT2}" font-weight="${weight}" font-size="${size}px" ${extra}>${escapeXml(String(s))}</text>`;
@@ -3718,6 +3725,9 @@ function render2(theme, data, x, y, _w, opts) {
   const pct = Math.min(1, Math.max(0, data.solved.total / totalQ));
   const dash = (pct * circumference).toFixed(1);
   const ringStyle = opts.animate ? ` style="stroke-dashoffset:${circumference.toFixed(1)};animation:sv_ring_${opts.uid} 1s ease-out .5s both"` : ` style="stroke-dashoffset:0"`;
+  const diffColors = opts.isDynamicLight ? DIFF_COLORS_LIGHT : DIFF_COLORS;
+  const barTrackOpacity = opts.isDynamicLight ? LIGHT_BAR_TRACK_OPACITY : 0.18;
+  const ringTrackOpacity = opts.isDynamicLight ? LIGHT_RING_TRACK_OPACITY : 0.18;
   const rows = DIFFS.map((d, i) => {
     const stat = data.solved[d];
     const ry = y + 12 + i * 31;
@@ -3733,8 +3743,8 @@ function render2(theme, data, x, y, _w, opts) {
       <text x="${x + 346}" y="${ry + 9}" text-anchor="end" font-family="${FONT2}" font-size="11px"${fadeIn2(opts, 0.55 + i * 0.05)}>
         <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
       </text>
-      <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}" fill-opacity="0.18"/>
-      <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}"/></g>`;
+      <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${diffColors[d]}" fill-opacity="${barTrackOpacity}"/>
+      <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${diffColors[d]}"/></g>`;
   }).join("");
   const style = opts.animate ? `<style>@media (prefers-reduced-motion: no-preference){
         @keyframes sv_fade_${opts.uid}{from{opacity:0}to{opacity:1}}
@@ -3742,7 +3752,7 @@ function render2(theme, data, x, y, _w, opts) {
         @keyframes sv_bar_${opts.uid}{from{transform:scaleX(0)}to{transform:scaleX(1)}}
       }</style>` : "";
   return `${style}
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", ringTrackOpacity)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${ringStyle}/>
     ${text2(cx, cy - 2, 22, 700, theme.sideNums, formatNumber(data.solved.total, opts.short), "middle", fadeIn2(opts, 0.4))}
     ${text2(cx, cy + 14, 9, 400, theme.dates, "Solved", "middle", fadeIn2(opts, 0.45))}
@@ -4031,7 +4041,8 @@ function renderCard(data, params, theme) {
     short: params.shortNumbers,
     topSkills: params.topSkills,
     topLangs: params.topLangs,
-    isDynamic
+    isDynamic,
+    isDynamicLight: isDynamic && isLight
   };
   const sectionsMarkup = placements.map((p) => RENDERERS[p.section](theme, data, p.x, p.y, p.w, opts)).join("\n");
   const dividerMarkup = dividers.map(

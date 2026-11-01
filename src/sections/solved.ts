@@ -12,6 +12,17 @@ const DIFF_COLORS: Record<"easy" | "medium" | "hard", string> = {
   medium: "#FFC01E",
   hard: "#FF375F",
 };
+// dynamic_light only: same hues darkened (HSL lightness) so the bar fills reach >=3:1 on white
+// and #f6f8fa (Easy 00B8A3 was 2.35:1, Medium FFC01E 1.54:1). Hard already passes (3.31:1).
+const DIFF_COLORS_LIGHT: Record<"easy" | "medium" | "hard", string> = {
+  easy: "#009C8A",
+  medium: "#B48200",
+  hard: "#FF375F",
+};
+// dynamic_light only: track opacities raised so the unfilled part of the ring/bars stays
+// visible (>=1.5:1 against white/#f6f8fa for every palette; was ~1.1-1.3:1 at 0.18).
+const LIGHT_RING_TRACK_OPACITY = 0.3;
+const LIGHT_BAR_TRACK_OPACITY = 0.4;
 const DIFFS: Array<"easy" | "medium" | "hard"> = ["easy", "medium", "hard"];
 
 interface RenderOpts {
@@ -20,6 +31,7 @@ interface RenderOpts {
   today: number;
   short: boolean;
   isDynamic?: boolean;
+  isDynamicLight?: boolean;
 }
 
 function text(
@@ -61,6 +73,10 @@ export function render(
     ? ` style="stroke-dashoffset:${circumference.toFixed(1)};animation:sv_ring_${opts.uid} 1s ease-out .5s both"`
     : ` style="stroke-dashoffset:0"`;
 
+  const diffColors = opts.isDynamicLight ? DIFF_COLORS_LIGHT : DIFF_COLORS;
+  const barTrackOpacity = opts.isDynamicLight ? LIGHT_BAR_TRACK_OPACITY : 0.18;
+  const ringTrackOpacity = opts.isDynamicLight ? LIGHT_RING_TRACK_OPACITY : 0.18;
+
   const rows = DIFFS.map((d, i) => {
     const stat = data.solved[d];
     const ry = y + 12 + i * 31;
@@ -78,8 +94,8 @@ export function render(
       <text x="${x + 346}" y="${ry + 9}" text-anchor="end" font-family="${FONT}" font-size="11px"${fadeIn(opts, 0.55 + i * 0.05)}>
         <tspan font-weight="700" ${fillAttrs(theme.sideNums, "fill")}>${formatNumber(stat.solved, opts.short)}</tspan><tspan font-weight="400" ${fillAttrs(theme.dates, "fill")}>/${formatNumber(stat.total, opts.short)}</tspan>
       </text>
-      <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}" fill-opacity="0.18"/>
-      <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${DIFF_COLORS[d]}"/></g>`;
+      <rect x="${barX}" y="${barY}" width="${barW}" height="7" rx="3.5" fill="${diffColors[d]}" fill-opacity="${barTrackOpacity}"/>
+      <g${barStyle}><rect x="${barX}" y="${barY}" width="${bw.toFixed(1)}" height="7" rx="3.5" fill="${diffColors[d]}"/></g>`;
   }).join("");
 
   const style = opts.animate
@@ -91,7 +107,7 @@ export function render(
     : "";
 
   return `${style}
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", 0.18)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke", ringTrackOpacity)} stroke-width="6"${opts.isDynamic ? ' class="dyn-stroke"' : ""}/>
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" ${fillAttrs(theme.ring, "stroke")} stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash} ${circumference.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"${opts.isDynamic ? ' class="dyn-stroke"' : ""}${ringStyle}/>
     ${text(cx, cy - 2, 22, 700, theme.sideNums, formatNumber(data.solved.total, opts.short), "middle", fadeIn(opts, 0.4))}
     ${text(cx, cy + 14, 9, 400, theme.dates, "Solved", "middle", fadeIn(opts, 0.45))}

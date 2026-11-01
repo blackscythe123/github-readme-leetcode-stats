@@ -29,6 +29,8 @@ interface SectionOpts {
   topSkills: number;
   topLangs: number;
   isDynamic?: boolean;
+  /** dynamic_light only: sections swap in WCAG-AA-safe light-surface colours/opacities. */
+  isDynamicLight?: boolean;
 }
 
 type SectionRenderer = (
@@ -111,6 +113,7 @@ export function renderCard(data: CardData, params: CardParams, theme: ThemeColor
     topSkills: params.topSkills,
     topLangs: params.topLangs,
     isDynamic,
+    isDynamicLight: isDynamic && isLight,
   };
 
   const sectionsMarkup = placements
