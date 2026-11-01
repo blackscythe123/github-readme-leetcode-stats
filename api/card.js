@@ -4161,7 +4161,7 @@ async function handler(req, res) {
     res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Cache-Control",
-      isDynamic ? "no-cache, no-store, must-revalidate" : SUCCESS_CACHE_CONTROL
+      isDynamic ? "max-age=0, no-cache, no-store, must-revalidate" : SUCCESS_CACHE_CONTROL
     );
     res.status(200).send(body);
   } catch (err) {
