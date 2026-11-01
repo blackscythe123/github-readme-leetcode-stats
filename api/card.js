@@ -3952,9 +3952,14 @@ function render4(theme, data, x, y, w, opts) {
 }
 
 // src/dynamic-keyframes.ts
+function startOffsetSec(totalDuration = 150, now = Date.now()) {
+  const n = palettes_default.length;
+  return Math.floor(now / 6e4) % n * (totalDuration / n);
+}
 function generateKeyframesCSS(isLight = false, totalDuration = 150) {
   const list = palettes_default;
   const n = list.length;
+  const offset = startOffsetSec(totalDuration);
   const p = 100 / n;
   const hold = p * 0.82;
   const activePalettes = list;
@@ -3982,6 +3987,7 @@ ${fillKfs}  }
 ${strokeKfs}  }
   .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
   .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
+  .dyn-fill, .dyn-stroke { animation-delay: -${offset}s !important; }
 `;
 }
 
