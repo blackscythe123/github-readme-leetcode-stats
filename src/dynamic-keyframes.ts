@@ -11,19 +11,9 @@ export interface Palette {
   light_wave_mid: string;
 }
 
-// Per-visitor starting palette. Every card service uses this same rule, so all the cards
-// of one page load (fetched within a second or two) start on the same palette and stay
-// in lockstep, while a visit a minute later starts on the next one. Whole palette steps
-// only (150 s / 30 = 5 s), so a card never starts mid-fade.
-export function startOffsetSec(totalDuration = 150, now: number = Date.now()): number {
-  const n = (palettes as unknown as Palette[]).length;
-  return (Math.floor(now / 60000) % n) * (totalDuration / n);
-}
-
 export function generateKeyframesCSS(isLight = false, totalDuration = 150): string {
   const list = palettes as unknown as Palette[];
   const n = list.length;
-  const offset = startOffsetSec(totalDuration);
   const p = 100 / n;
   const hold = p * 0.82;
 
@@ -55,6 +45,5 @@ ${fillKfs}  }
 ${strokeKfs}  }
   .dyn-fill { animation: ${animName}_fill ${totalDuration}s linear infinite !important; }
   .dyn-stroke { animation: ${animName}_stroke ${totalDuration}s linear infinite !important; }
-  .dyn-fill, .dyn-stroke { animation-delay: -${offset}s !important; }
 `;
 }
